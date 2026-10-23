@@ -6,7 +6,7 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "next lint --dir src --dir test",
     "typecheck": "tsc --skipLibCheck true --noEmit",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",

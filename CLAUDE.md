@@ -8,7 +8,7 @@ Next.js（App Router）+ TypeScript + Supabase + Prisma + react-calendar で作�
 - 開発サーバー: `yarn run dev`
 - テスト: `yarn test`（Vitest。導入は専用 Issue）
 - 型チェック: `yarn typecheck`
-- lint: `yarn lint`
+- lint: `yarn lint`（`src/` と `test/` が対象）
 
 ## 概要
 - Next.js（App Router）+ TypeScript + Supabase + Prisma + react-calendar で作るカレンダーを作る。
@@ -51,6 +51,7 @@ Next.js（App Router）+ TypeScript + Supabase + Prisma + react-calendar で作�
 - named export を使い、default export はページ・レイアウトなど Next.js が要求する所だけ
 - `any` は使わない
 - `src/lib/` の関数には Vitest のテストを書く。テストは仕様の受け入れ条件から先に作る
+- 単体テストは `src` ではなく `test/` に置く（`src/` の構造をミラーする。例: `src/lib/foo.ts` → `test/lib/foo.test.ts`）
 - 新しい依存パッケージは、追加前に理由とともに確認を取る
 
 ## 作業の進め方
