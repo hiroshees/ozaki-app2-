@@ -69,8 +69,8 @@ FullCalendar（https://fullcalendar.io/）で実現できることをローカ�
 - 失敗した場合は元の位置に戻し、エラーを表示する
 
 ## 非機能要件
-- 書き込みはすべて Server Actions 経由（`SUPABASE_SECRET_KEY` を使用）
-- ブラウザからは SELECT と Realtime 購読のみ（anon に書き込み権限を与えない）
+- 読み取り（Route Handler）・書き込み（Server Actions）は、いずれもサーバー側で Prisma を使う。ブラウザは DB に直接アクセスしない
+- ブラウザが DB へ直接アクセスするのは Realtime の購読のみ（anon は SELECT のみ。書き込み権限は与えない）
 - 予定の取得は**表示範囲（ビューの開始〜終了）に重なるものだけ**を対象とする
 - DB 変更は Prisma マイグレーションで管理する
 
@@ -83,6 +83,6 @@ FullCalendar（https://fullcalendar.io/）で実現できることをローカ�
 6. ブラウザの anon キーでは INSERT / UPDATE / DELETE が拒否される
 
 ## 未決事項
-- ~~予定の取得を、ブラウザから anon クライアントで読むか、Route Handler 経由にするか~~ → ブラウザから anon クライアントで読む（#39 で決定）
+- ~~予定の取得を、ブラウザから anon クライアントで読むか、Route Handler 経由にするか~~ → サーバー側で Prisma を使い、Route Handler（`GET /api/events`）経由で FullCalendar に渡す（方針転換。#43。経緯は `docs/PLAN.md`）
 - 表示範囲取得のとき、前後を先読みするか（体感速度の検証）
 - 週・日ビューの時間軸の刻み（30 分 / 15 分）と表示する時間帯（#40 で決める）

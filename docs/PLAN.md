@@ -10,7 +10,7 @@ Issue 作成後、`#?` を番号に置き換える。進捗は `[ ]` → `[x]` �
 - [x] #6 `Event` モデルと初回マイグレーションを追加する（RLS: anon は SELECT のみ）
 - [x] #7 サーバー専用 Supabase クライアントを追加する（`src/utils/supabase/admin.ts`、`server-only`、`SUPABASE_SECRET_KEY`、`.env.sample` 追記。※`server-only` は新規依存のため事前確認）
 - ~~#27 不要になった依存パッケージを整理する（`@supabase/ssr`、`tsx`、`entities`。#3 で見送った分）~~ **実施せずに終了**
-- [ ] #30 Prisma の生成まわりを整理する（`prisma generate` の失敗、生成物の `.gitignore`、`@prisma/client` の扱い）
+- [ ] #30 Prisma Client を実行時に使えるようにする（`@prisma/client` を 6.19.3 にそろえ、`prisma generate` を直す。`zod-prisma-types` の整理。ビルド・CI で generate）
 
 ## Phase 2: 表示
 - [x] #8 日付ユーティリティを実装する（`src/lib/calendar/`: JST 変換、週・月の範囲計算。テスト先行）
@@ -21,11 +21,13 @@ Issue 作成後、`#?` を番号に置き換える。進捗は `[ ]` → `[x]` �
 - ~~#13 週ビュー・日ビューを実装する~~ **実施せずに終了**（react-calendar に無い。FullCalendar が提供する）
 - [x] #39 FullCalendar を導入し、月ビューを置き換える（`@fullcalendar/react` v7 と `temporal-polyfill`。承認済み）
 - [ ] #40 FullCalendar で週ビュー・日ビューを追加する
+- [ ] #43 予定の取得を Prisma + Route Handler に切り替える（`GET /api/events`。ブラウザから supabase-js・zod が不要になる。#30 が前提）
 
 ## Phase 3: 予定の CRUD
-- [ ] #14 予定の作成 Server Action とモーダルを実装する
-- [ ] #15 予定の編集 Server Action とモーダルを実装する
-- [ ] #16 予定の削除 Server Action と確認ダイアログを実装する
+- [ ] #14 予定の作成 Server Action（Prisma）とモーダルを実装する
+- [ ] #15 予定の編集 Server Action（Prisma）とモーダルを実装する
+- [ ] #16 予定の削除 Server Action（Prisma）と確認ダイアログを実装する
+- [ ] #44 supabase-js の admin クライアントと `SUPABASE_SECRET_KEY` を撤去する（`server-only` は残す）
 
 ## Phase 4: 検証・仕上げ
 - [ ] #17 Realtime 購読で他タブへ反映する
@@ -34,9 +36,27 @@ Issue 作成後、`#?` を番号に置き換える。進捗は `[ ]` → `[x]` �
 
 ## 依存関係
 ```
-認証撤去 ─┬─ Event モデル ─ admin クライアント ─ Phase 3
-          └─ CI 統一 / Vitest ─ 日付ユーティリティ ─ FullCalendar 導入(#39) ─ 週・日ビュー(#40) ─ Phase 3 ─ Phase 4
+認証撤去 ─┬─ Event モデル ─ Prisma Client(#30) ─ 取得を Prisma に(#43) ─ Phase 3(書き込みも Prisma) ─ Phase 4
+          └─ CI 統一 / Vitest ─ 日付ユーティリティ ─ FullCalendar 導入(#39) ─ 週・日ビュー(#40) ─┘
+admin クライアント撤去(#44)は #43 のあと、Phase 3 と並行してよい
 ```
+
+## 方針転換 2: データの読み書きをサーバー側の Prisma に統一（2026-10-23）
+FullCalendar の月ビュー（#39）の導入後、データアクセスの方針を変更した。ブラウザ（クライアントコンポーネント）から Supabase を直接読む方式をやめ、**読み取り・書き込みの両方をサーバー側で Prisma に統一**する。
+
+### 決定事項
+- 読み取りは Route Handler（`GET /api/events?start=...&end=...`）、書き込みは Server Actions。どちらも Prisma を使い、入力は zod で検証する
+- FullCalendar の `events` 関数は、Route Handler を `fetch` して予定を取得する
+- Prisma は 6.19.3 にそろえる（`@prisma/client` を 6.3.1 から更新。Prisma 7 には上げない）
+- 実行時の接続は `DATABASE_URL`（Supabase のプーラー、6543、`pgbouncer=true`）。マイグレーションは `DIRECT_URL`（セッションモード、5432）。すでに設定済み
+- ブラウザが DB へ直接アクセスするのは Realtime の購読（#17）だけ。anon は SELECT のみ（RLS の SELECT ポリシーは残す）
+
+### 影響
+- **#30 の方向が変わる**: 「`@prisma/client` を外す」から「バージョンをそろえて使えるようにする」へ
+- **ブラウザの JS が小さくなる**: supabase-js と zod がブラウザ向けバンドルから消える（#43 で計測）
+- **撤去する**: supabase-js の admin クライアント（`utils/supabase/admin.ts`）、`SUPABASE_SECRET_KEY`（#44）。`server-only` は Prisma クライアントの保護に使うため残す
+- **残す**: `getAnonClient()`（Realtime 用）、`overlapsRange`（#17）、`EventInputSchema`（書き込みの検証）、`toFullCalendarEvent`
+- **RLS は Prisma には効かない**（DB のロールで接続するため）。Route Handler には認証がなく、誰でも GET できる（公開しない学習用のため許容する）
 
 ## 方針転換: react-calendar → FullCalendar（2026-10-23）
 #11 で react-calendar の月ビューを実装し、ナビゲーションを検証した結果、方針を FullCalendar（https://fullcalendar.io/、v7）へ転換した。
@@ -68,12 +88,12 @@ DB・マイグレーション、`jst.ts`（JST の日付計算）、`schema.ts`�
 - `timeZone: 'Asia/Tokyo'` を指定すると、FullCalendar が返す `Date`（表示範囲、`datesSet` など）は**本当の瞬間**。JST の年月日への変換は `jst.ts` の `toJstYmd` で行う（実ブラウザで確認済み）
 - v7 は CSS のクラス名が難読化されている。ブラウザでの動作確認（自動操作）では、`aria-label`（「前」「次」「今日」）や `role="heading"` を使う
 - 予定の取得結果が**描画の完了より先に返る**と、FullCalendar 内部が「マウント前の状態更新」の警告を出す（実際のネットワーク取得では起きない）
-- 予定はブラウザから anon クライアントで直接読む（RLS で SELECT のみ許可）。クライアントは `getAnonClient()` で使い回す（作るたびに GoTrueClient の警告が出るため）
+- 予定の取得は、現状ブラウザから anon クライアントで直接読んでいる（RLS で SELECT のみ許可）。`getAnonClient()` で使い回している（作るたびに GoTrueClient の警告が出るため）。**サーバー側の Prisma + Route Handler に切り替える（#43）**。`getAnonClient()` は Realtime の購読（#17）で引き続き使う
 - 予定の表示範囲は URL の searchParams と `history.replaceState` で同期する（サーバーの再描画は起きない）
 
 ## 方針メモ
 - 新規依存は追加前に確認する（Vitest、`react-calendar`、`server-only`、FullCalendar など）
 - 本番 DB に影響するコマンド（`prisma migrate deploy` など）は提示のみで実行しない
-  - `vercel-build` から `prisma generate` と `prisma migrate deploy` を外し、`next build` のみにした。マイグレーションは手動で提示されたコマンドを実行する。`prisma generate` は、実行時に Prisma Client を使わない方針のため戻していない（モデル 0 件だと `zod-prisma-types` が失敗していたが、#6 でモデルが入り zod の生成自体は動く。Prisma Client の生成は `@prisma/client`(6.3.1) と CLI(6.19.3) のバージョン差で失敗する）
+  - `vercel-build` から `prisma generate` と `prisma migrate deploy` を外し、`next build` のみにした。マイグレーションは手動で提示されたコマンドを実行する。`prisma generate` は、Prisma を実行時にも使う方針に変わったため、#30 でビルド・CI に戻す（先に `@prisma/client`(6.3.1) と CLI(6.19.3) のバージョン差を直す）。`migrate deploy` は本番 DB に影響するため、これまでどおり提示のみ
 - CI は yarn で `install --frozen-lockfile` / lint / prettier:check / typecheck / build を実行する。`yarn test:coverage` もここで実行する（カバレッジは出力のみで、最低ラインでの失敗判定はしない）
 - Issue 作成時は `phase-N` ラベルを付ける
