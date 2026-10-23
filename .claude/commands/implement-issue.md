@@ -2,17 +2,16 @@ Issue#$ARGUMENTSを実装してください。実装にあたっては新しい�
 
 ## 実装手順
 
-### 1. 前処理（Worktree作成前）
+### 1. 前処理
 - 現在のブランチがmain以外の場合は、mainブランチにチェックアウトしてください
 - `git checkout main && git pull origin main`で最新のmainブランチを取得してください
 - 既存のブランチ`feat/issue-$ARGUMENTS`があれば削除してください
 
-### 2. Worktree作成
-- `git worktree add issue-$ARGUMENTS -b feat/issue-$ARGUMENTS`コマンドでWorktreeを作成してください
-- Worktreeは`issue-$ARGUMENTS`という命名規則に従ったサブフォルダを作成します
+### 2. ブランチ作成
+- `git checkout -b feat/issue-$ARGUMENTS`コマンドで新しいブランチを作成してください
+- 以降の作業は現在のディレクトリで、このブランチ上で行います
 
-### 3. Worktree環境の設定
-- 作成したサブディレクトリ`issue-$ARGUMENTS`に移動してください
+### 3. 環境の設定
 <!-- - `npx husky install`を実行してHuskyのパスを設定してください -->
 - 必要に応じて`yarn install`で依存関係をインストールしてください
 
@@ -26,7 +25,6 @@ Issue#$ARGUMENTSを実装してください。実装にあたっては新しい�
 - `gh pr create`コマンドでプルリクエストを作成してください
 - PRタイトルは「feat: Issue #$ARGUMENTS [Issue内容の要約]」形式にしてください
 
-### 6. 後処理（クリーンアップ）
-- プルリクエスト作成後、メインディレクトリ（/root/report）に戻ってください
-- `git worktree remove issue-$ARGUMENTS`でWorktreeを削除してください
+### 6. 後処理
+- プルリクエスト作成後、`git checkout main`でmainブランチに戻ってください
 - 作業が完了したことを報告してください
