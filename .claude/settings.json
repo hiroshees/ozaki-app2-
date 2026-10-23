@@ -17,6 +17,6 @@
       "Bash(supabase migration repair *)",
       "Bash(vercel --prod *)"
     ],
-    "deny": ["Write(./.env)", "Write(./.env.local)", "Write(./.env.*.local)"]
+    "deny": ["Edit(./.env)", "Edit(./.env.local)", "Edit(./.env.*.local)"]
   }
 }
