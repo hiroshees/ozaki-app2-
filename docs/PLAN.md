@@ -39,5 +39,5 @@ Issue 作成後、`#?` を番号に置き換える。進捗は `[ ]` → `[x]` �
 - 新規依存は追加前に確認する（Vitest、`react-calendar`、`server-only`）
 - 本番 DB に影響するコマンド（`prisma migrate deploy` など）は提示のみで実行しない
   - `vercel-build` から `prisma generate` と `prisma migrate deploy` を外し、`next build` のみにした。マイグレーションは手動で提示されたコマンドを実行する。`prisma generate` は、実行時に Prisma Client を使わない方針のため戻していない（モデル 0 件だと `zod-prisma-types` が失敗していたが、#6 でモデルが入り zod の生成自体は動く。Prisma Client の生成は `@prisma/client`(6.3.1) と CLI(6.19.3) のバージョン差で失敗する）
-- CI は yarn で `install --frozen-lockfile` / lint / typecheck / build を実行する。`yarn test:coverage` もここで実行する（カバレッジは出力のみで、最低ラインでの失敗判定はしない）
+- CI は yarn で `install --frozen-lockfile` / lint / prettier:check / typecheck / build を実行する。`yarn test:coverage` もここで実行する（カバレッジは出力のみで、最低ラインでの失敗判定はしない）
 - Issue 作成時は `phase-N` ラベルを付ける

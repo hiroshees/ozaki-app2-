@@ -29,6 +29,9 @@ jobs:
 
       - run: yarn lint
 
+      # 整形の漏れを検出する（書き換えはしない）
+      - run: yarn prettier:check
+
       - run: yarn typecheck
 
       # テストとあわせてカバレッジをログに出力する（最低ラインでの失敗判定はしない）
