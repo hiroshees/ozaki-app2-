@@ -32,3 +32,19 @@ generator zod {
   coerceDate                       = true // default is true
   writeNullishInModelTypes         = false // default is false
 }
+
+// 予定。書き込みは supabase-js（Server Actions）経由のため、updatedAt は DB トリガーでも更新する
+model Event {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title       String
+  description String?
+  startAt     DateTime @db.Timestamptz(6)
+  endAt       DateTime @db.Timestamptz(6)
+  allDay      Boolean  @default(false)
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+
+  // 表示範囲に重なる予定の取得用
+  @@index([startAt, endAt])
+  @@map("events")
+}
