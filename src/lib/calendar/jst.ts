@@ -66,6 +66,30 @@ export function toJstYmd(instant: Date): JstDate {
   };
 }
 
+// <input type="datetime-local"> の値（"YYYY-MM-DDTHH:mm"）を JST として解釈し、UTC の Date にする。
+// タイムゾーン付き・秒付き・存在しない日時は null。24:00 は不正（翌日 00:00 と書く）
+const DATETIME_PATTERN = /^(\d{4}-\d{2}-\d{2})T(\d{2}):(\d{2})$/;
+
+export function parseJstDateTime(
+  value: string | null | undefined,
+): Date | null {
+  if (!value) return null;
+
+  const match = DATETIME_PATTERN.exec(value);
+  if (!match) return null;
+
+  const date = parseYmd(match[1]);
+  if (!date) return null;
+
+  const hour = Number(match[2]);
+  const minute = Number(match[3]);
+  if (hour > 23 || minute > 59) return null;
+
+  return new Date(
+    Date.UTC(date.year, date.month - 1, date.day, hour, minute) - JST_OFFSET_MS,
+  );
+}
+
 // JST の 0:00 を表す UTC の瞬間。day が月の範囲を超えても Date.UTC が繰り上げて扱う
 function jstMidnight(year: number, monthIndex: number, day: number): Date {
   return new Date(Date.UTC(year, monthIndex, day) - JST_OFFSET_MS);
