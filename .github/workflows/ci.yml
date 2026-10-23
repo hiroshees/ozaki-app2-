@@ -19,22 +19,20 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: pnpm/action-setup@v6
-
       - uses: actions/setup-node@v7
         with:
           node-version: 24
-          cache: pnpm
+          cache: yarn
 
-      # postinstall で prisma generate が走る
-      - run: pnpm install --frozen-lockfile
+      # lockfile と package.json がずれていたら失敗させる
+      - run: yarn install --frozen-lockfile
 
-      - run: pnpm lint
+      - run: yarn lint
 
-      - run: pnpm typecheck
+      - run: yarn typecheck
 
-      # テストとあわせてカバレッジをログに出力する（最低ラインでの失敗判定はしない）
-      - run: pnpm test:coverage
+      # TODO: Vitest 導入（Issue #5）後に `yarn test:coverage` を追加する。
+      # それまでは test スクリプトが無いため実行しない
 
-      # ビルドにシークレットは使わない（DB・Gemini への実接続は行わない）
-      - run: pnpm build
+      # ビルドにシークレットは使わない（DB への実接続は行わない）
+      - run: yarn build
