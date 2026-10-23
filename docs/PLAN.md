@@ -9,6 +9,7 @@ Issue 作成後、`#?` を番号に置き換える。進捗は `[ ]` → `[x]` �
 - [x] #5 Vitest を導入する（`test` / `test:coverage` スクリプト追加。※新規依存のため事前確認）
 - [ ] #6 `Event` モデルと初回マイグレーションを追加する（RLS: anon は SELECT のみ）
 - [ ] #7 サーバー専用 Supabase クライアントを追加する（`src/utils/supabase/admin.ts`、`server-only`、`SUPABASE_SECRET_KEY`、`.env.sample` 追記。※`server-only` は新規依存のため事前確認）
+- [ ] #27 不要になった依存パッケージを整理する（`@supabase/ssr`、`tsx`、`entities`。#3 で見送った分）
 
 ## Phase 2: 表示
 - [ ] #8 日付ユーティリティを実装する（`src/lib/calendar/`: JST 変換、週・月の範囲計算。テスト先行）
@@ -26,7 +27,7 @@ Issue 作成後、`#?` を番号に置き換える。進捗は `[ ]` → `[x]` �
 ## Phase 4: 検証・仕上げ
 - [ ] #17 Realtime 購読で他タブへ反映する
 - [ ] #18 ドラッグ＆ドロップで日時を変更する（検証。結果を `docs/` に記録）
-- [ ] #19 README を更新し、不要依存（`entities` など）を整理する
+- [ ] #19 README を更新する
 
 ## 依存関係
 ```
