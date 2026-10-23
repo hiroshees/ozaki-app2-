@@ -17,3 +17,13 @@ export function createAnonClient() {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 }
+
+let sharedClient: ReturnType<typeof createAnonClient> | undefined;
+
+// アプリ全体で使い回す anon クライアント。予定の取得のたびに createAnonClient すると、
+// GoTrueClient が増えて「Multiple GoTrueClient instances」の警告が出る。Realtime の購読（#17）も同じものを使う。
+// 作成に失敗（環境変数が未設定など）したときは保持しない
+export function getAnonClient() {
+  sharedClient ??= createAnonClient();
+  return sharedClient;
+}

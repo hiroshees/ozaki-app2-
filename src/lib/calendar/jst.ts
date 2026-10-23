@@ -66,38 +66,6 @@ export function toJstYmd(instant: Date): JstDate {
   };
 }
 
-// カレンダー上の日付だけで計算する（時刻・タイムゾーンは関係しない）ので、UTC の Date.UTC を使う
-
-// 日を足し引きする。月末・年末・うるう日をまたいでもよい
-export function addDays({ year, month, day }: JstDate, days: number): JstDate {
-  const shifted = new Date(Date.UTC(year, month - 1, day + days));
-  return {
-    year: shifted.getUTCFullYear(),
-    month: shifted.getUTCMonth() + 1,
-    day: shifted.getUTCDate(),
-  };
-}
-
-// 月を足し引きする。移動先の月に同じ日がなければ月末に丸める（1/31 の次の月は 2/28 or 2/29）
-export function addMonths(
-  { year, month, day }: JstDate,
-  months: number,
-): JstDate {
-  // 年をまたぐ計算を「0 始まりの通算月」でそろえる
-  const total = year * 12 + (month - 1) + months;
-  const targetYear = Math.floor(total / 12);
-  const targetMonth = total - targetYear * 12 + 1;
-
-  // 翌月の 0 日目 = 当月の末日
-  const lastDay = new Date(Date.UTC(targetYear, targetMonth, 0)).getUTCDate();
-  return { year: targetYear, month: targetMonth, day: Math.min(day, lastDay) };
-}
-
-// 曜日（0 = 日曜 〜 6 = 土曜）
-export function getWeekday({ year, month, day }: JstDate): number {
-  return new Date(Date.UTC(year, month - 1, day)).getUTCDay();
-}
-
 // <input type="datetime-local"> の値（"YYYY-MM-DDTHH:mm"）を JST として解釈し、UTC の Date にする。
 // タイムゾーン付き・秒付き・存在しない日時は null。24:00 は不正（翌日 00:00 と書く）
 const DATETIME_PATTERN = /^(\d{4}-\d{2}-\d{2})T(\d{2}):(\d{2})$/;
@@ -132,38 +100,5 @@ export function getJstDayRange({ year, month, day }: JstDate): DateRange {
   return {
     start: jstMidnight(year, month - 1, day),
     end: jstMidnight(year, month - 1, day + 1),
-  };
-}
-
-// その日を含む週（日曜始まり）の JST 日曜 00:00 〜 翌週日曜 00:00
-export function getJstWeekRange({ year, month, day }: JstDate): DateRange {
-  // 曜日はカレンダー上の日付だけで決まる（0 = 日曜）
-  const weekday = new Date(Date.UTC(year, month - 1, day)).getUTCDay();
-  return {
-    start: jstMidnight(year, month - 1, day - weekday),
-    end: jstMidnight(year, month - 1, day - weekday + 7),
-  };
-}
-
-// その日を含む月の JST 月初 00:00 〜 翌月初 00:00
-export function getJstMonthRange({ year, month }: JstDate): DateRange {
-  return {
-    start: jstMidnight(year, month - 1, 1),
-    end: jstMidnight(year, month, 1),
-  };
-}
-
-// 月ビューに見える範囲。月初を含む週の日曜 00:00 から、月末を含む週の土曜の翌日 00:00 まで。
-// 前後の月の日付も表示されるので、予定の取得はこの範囲で行う
-export function getJstMonthGridRange({ year, month }: JstDate): DateRange {
-  // 月初の前に見える前月の日数（月初が日曜なら 0）
-  const leading = getWeekday({ year, month, day: 1 });
-  // 翌月の 0 日目 = 当月の末日
-  const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
-  const weeks = Math.ceil((leading + daysInMonth) / 7);
-
-  return {
-    start: jstMidnight(year, month - 1, 1 - leading),
-    end: jstMidnight(year, month - 1, 1 - leading + weeks * 7),
   };
 }

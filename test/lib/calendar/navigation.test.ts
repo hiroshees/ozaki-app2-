@@ -1,9 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   buildCalendarHref,
-  formatCalendarTitle,
   resolveCalendarState,
-  shiftCalendarDate,
 } from "@/lib/calendar/navigation";
 
 // JST 2026-10-23 23:30（UTC 14:30）
@@ -82,78 +80,6 @@ describe("resolveCalendarState", () => {
   });
 });
 
-describe("shiftCalendarDate（ビューに応じた単位で移動する）", () => {
-  const date = { year: 2026, month: 10, day: 23 };
-
-  it("日ビューは 1 日ずつ", () => {
-    expect(shiftCalendarDate("day", date, 1)).toEqual({
-      year: 2026,
-      month: 10,
-      day: 24,
-    });
-    expect(shiftCalendarDate("day", date, -1)).toEqual({
-      year: 2026,
-      month: 10,
-      day: 22,
-    });
-  });
-
-  it("週ビューは 7 日ずつ", () => {
-    expect(shiftCalendarDate("week", date, 1)).toEqual({
-      year: 2026,
-      month: 10,
-      day: 30,
-    });
-    expect(shiftCalendarDate("week", date, -1)).toEqual({
-      year: 2026,
-      month: 10,
-      day: 16,
-    });
-  });
-
-  it("月ビューは 1 か月ずつ", () => {
-    expect(shiftCalendarDate("month", date, 1)).toEqual({
-      year: 2026,
-      month: 11,
-      day: 23,
-    });
-    expect(shiftCalendarDate("month", date, -1)).toEqual({
-      year: 2026,
-      month: 9,
-      day: 23,
-    });
-  });
-
-  it("月末は移動先の月末に丸める（1/31 の次の月は 2/28）", () => {
-    expect(
-      shiftCalendarDate("month", { year: 2026, month: 1, day: 31 }, 1),
-    ).toEqual({ year: 2026, month: 2, day: 28 });
-    expect(
-      shiftCalendarDate("month", { year: 2024, month: 1, day: 31 }, 1),
-    ).toEqual({ year: 2024, month: 2, day: 29 });
-  });
-
-  it("年をまたいで移動できる", () => {
-    expect(
-      shiftCalendarDate("month", { year: 2026, month: 12, day: 15 }, 1),
-    ).toEqual({ year: 2027, month: 1, day: 15 });
-    expect(
-      shiftCalendarDate("week", { year: 2026, month: 12, day: 28 }, 1),
-    ).toEqual({ year: 2027, month: 1, day: 4 });
-    expect(
-      shiftCalendarDate("day", { year: 2026, month: 1, day: 1 }, -1),
-    ).toEqual({ year: 2025, month: 12, day: 31 });
-  });
-
-  it("前へ → 次へ で、日・週は元の日付に戻る", () => {
-    for (const view of ["day", "week"] as const) {
-      expect(
-        shiftCalendarDate(view, shiftCalendarDate(view, date, -1), 1),
-      ).toEqual(date);
-    }
-  });
-});
-
 describe("buildCalendarHref", () => {
   it("view と date を searchParams にする", () => {
     expect(buildCalendarHref("week", TODAY)).toBe(
@@ -186,42 +112,5 @@ describe("ビュー切替で date が維持される", () => {
       const params = Object.fromEntries(new URL(href, "http://x").searchParams);
       expect(resolveCalendarState(params, NOW)).toEqual({ view, date });
     }
-  });
-});
-
-describe("formatCalendarTitle", () => {
-  it("月ビューは「YYYY年M月」", () => {
-    expect(formatCalendarTitle("month", TODAY)).toBe("2026年10月");
-    expect(
-      formatCalendarTitle("month", { year: 2026, month: 1, day: 31 }),
-    ).toBe("2026年1月");
-  });
-
-  it("日ビューは日付と曜日", () => {
-    expect(formatCalendarTitle("day", TODAY)).toBe("2026年10月23日（金）");
-    expect(formatCalendarTitle("day", { year: 2026, month: 10, day: 18 })).toBe(
-      "2026年10月18日（日）",
-    );
-  });
-
-  it("週ビューは日曜〜土曜の範囲", () => {
-    expect(formatCalendarTitle("week", TODAY)).toBe("2026年10月18日〜10月24日");
-  });
-
-  it("週ビューが月をまたぐときは終了側にも月を付ける", () => {
-    // 2026-09-30（水）の週は 9/27（日）〜 10/3（土）
-    expect(formatCalendarTitle("week", { year: 2026, month: 9, day: 30 })).toBe(
-      "2026年9月27日〜10月3日",
-    );
-    // 月内に収まる週は終了側にも月を付ける（同じ月でも省略しない）
-    expect(
-      formatCalendarTitle("week", { year: 2026, month: 10, day: 27 }),
-    ).toBe("2026年10月25日〜10月31日");
-  });
-
-  it("週ビューが年をまたぐときは終了側にも年を付ける", () => {
-    expect(
-      formatCalendarTitle("week", { year: 2026, month: 12, day: 31 }),
-    ).toBe("2026年12月27日〜2027年1月2日");
   });
 });
