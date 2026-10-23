@@ -9,6 +9,7 @@ Next.js（App Router）+ TypeScript + Supabase + Prisma + react-calendar で作�
 - テスト: `yarn test`（Vitest。導入は専用 Issue）
 - 型チェック: `yarn typecheck`
 - lint: `yarn lint`（`src/` と `test/` が対象）
+- 整形: `yarn prettier`（`src/` と `test/` を書き換える）。チェックのみは `yarn prettier:check`（CI で実行）
 
 ## 概要
 - Next.js（App Router）+ TypeScript + Supabase + Prisma + react-calendar で作るカレンダーを作る。

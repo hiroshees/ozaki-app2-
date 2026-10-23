@@ -1,0 +1,7 @@
+# 生成物
+.next
+coverage
+src/db/prisma/generated
+
+# マイグレーション SQL は手で管理する
+src/db/prisma/migrations
