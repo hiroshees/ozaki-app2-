@@ -1,0 +1,128 @@
+/* 月ビュー（react-calendar）。標準の CSS は使わず、予定を表示できる大きさのセルにする。
+   グリッドの配置（7 列）は react-calendar がインラインで指定している */
+
+.month-view .react-calendar {
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  background: #fff;
+}
+
+.month-view .react-calendar__month-view__weekdays {
+  border-bottom: 1px solid #d1d5db;
+  background: #f3f4f6;
+  text-align: center;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.month-view .react-calendar__month-view__weekdays__weekday {
+  padding: 0.5rem 0;
+}
+
+/* ブラウザ標準の abbr の下線を消す */
+.month-view .react-calendar__month-view__weekdays__weekday abbr {
+  text-decoration: none;
+}
+
+/* 日曜（先頭）は赤、土曜（末尾）は青 */
+.month-view .react-calendar__month-view__weekdays__weekday:first-child {
+  color: #dc2626;
+}
+
+.month-view .react-calendar__month-view__weekdays__weekday:last-child {
+  color: #2563eb;
+}
+
+.month-view .react-calendar__tile {
+  display: flex;
+  min-height: 7rem;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0.25rem;
+  border-right: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e5e7eb;
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+}
+
+.month-view .react-calendar__tile:hover {
+  background: #eff6ff;
+}
+
+.month-view .react-calendar__tile:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: -2px;
+}
+
+/* 日付の数字 */
+.month-view .react-calendar__tile abbr {
+  display: inline-flex;
+  width: 1.75rem;
+  height: 1.75rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  text-decoration: none;
+}
+
+.month-view .month-day--sunday abbr {
+  color: #dc2626;
+}
+
+.month-view .month-day--saturday abbr {
+  color: #2563eb;
+}
+
+/* 前後の月の日付は薄く表示する */
+.month-view .react-calendar__month-view__days__day--neighboringMonth {
+  background: #f9fafb;
+}
+
+.month-view .react-calendar__month-view__days__day--neighboringMonth abbr {
+  color: #9ca3af;
+}
+
+/* 今日（JST）。react-calendar 標準の「今日」はブラウザのタイムゾーンなので使わない */
+.month-view .month-day--today abbr {
+  background: #2563eb;
+  color: #fff;
+  font-weight: 600;
+}
+
+/* セル内の予定 */
+.month-view .month-events {
+  display: block;
+  width: 100%;
+}
+
+.month-view .month-event {
+  display: block;
+  overflow: hidden;
+  margin-top: 2px;
+  padding: 0 0.25rem;
+  border-radius: 0.125rem;
+  background: #dbeafe;
+  color: #1e3a8a;
+  font-size: 0.75rem;
+  line-height: 1.25rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.month-view .month-event--all-day {
+  background: #2563eb;
+  color: #fff;
+}
+
+.month-view .month-more {
+  display: block;
+  margin-top: 2px;
+  padding: 0 0.25rem;
+  color: #4b5563;
+  font-size: 0.75rem;
+  line-height: 1.25rem;
+}
