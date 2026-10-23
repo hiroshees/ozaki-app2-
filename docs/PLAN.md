@@ -4,29 +4,29 @@
 Issue 作成後、`#?` を番号に置き換える。進捗は `[ ]` → `[x]` で更新する。
 
 ## Phase 1: 基盤整備
-- [ ] #? テンプレ由来の認証コードを撤去する（`utils/supabase/*`、`middleware.ts`、signin/signup、`actions/auth.ts`、`User`/`Sample` モデルなど）
-- [ ] #? CI と package manager を yarn に統一する（`ci.yml` が pnpm のまま。`vercel-build` の `prisma migrate deploy` の扱いも見直す）
-- [ ] #? Vitest を導入する（`test` / `test:coverage` スクリプト追加。※新規依存のため事前確認）
-- [ ] #? `Event` モデルと初回マイグレーションを追加する（RLS: anon は SELECT のみ）
-- [ ] #? サーバー専用 Supabase クライアントを追加する（`src/utils/supabase/admin.ts`、`server-only`、`SUPABASE_SECRET_KEY`、`.env.sample` 追記。※`server-only` は新規依存のため事前確認）
+- [ ] #3 テンプレ由来の認証コードを撤去する（`utils/supabase/*`、`middleware.ts`、signin/signup、`actions/auth.ts`、`User`/`Sample` モデルなど）
+- [ ] #4 CI と package manager を yarn に統一する（`ci.yml` が pnpm のまま。`vercel-build` の `prisma migrate deploy` の扱いも見直す）
+- [ ] #5 Vitest を導入する（`test` / `test:coverage` スクリプト追加。※新規依存のため事前確認）
+- [ ] #6 `Event` モデルと初回マイグレーションを追加する（RLS: anon は SELECT のみ）
+- [ ] #7 サーバー専用 Supabase クライアントを追加する（`src/utils/supabase/admin.ts`、`server-only`、`SUPABASE_SECRET_KEY`、`.env.sample` 追記。※`server-only` は新規依存のため事前確認）
 
 ## Phase 2: 表示
-- [ ] #? 日付ユーティリティを実装する（`src/lib/calendar/`: JST 変換、週・月の範囲計算。テスト先行）
-- [ ] #? 予定の型・zod スキーマ・範囲取得関数を実装する（`src/lib/events/`）
-- [ ] #? searchParams（view, date）の解釈とヘッダーナビを実装する
-- [ ] #? 月ビューを実装する（`react-calendar` 導入。※新規依存のため事前確認）
-- [ ] #? 予定の重なりレイアウト計算を実装する（純粋関数、テスト先行）
-- [ ] #? 週ビュー・日ビューを実装する
+- [ ] #8 日付ユーティリティを実装する（`src/lib/calendar/`: JST 変換、週・月の範囲計算。テスト先行）
+- [ ] #9 予定の型・zod スキーマ・範囲取得関数を実装する（`src/lib/events/`）
+- [ ] #10 searchParams（view, date）の解釈とヘッダーナビを実装する
+- [ ] #11 月ビューを実装する（`react-calendar` 導入。※新規依存のため事前確認）
+- [ ] #12 予定の重なりレイアウト計算を実装する（純粋関数、テスト先行）
+- [ ] #13 週ビュー・日ビューを実装する
 
 ## Phase 3: 予定の CRUD
-- [ ] #? 予定の作成 Server Action とモーダルを実装する
-- [ ] #? 予定の編集 Server Action とモーダルを実装する
-- [ ] #? 予定の削除 Server Action と確認ダイアログを実装する
+- [ ] #14 予定の作成 Server Action とモーダルを実装する
+- [ ] #15 予定の編集 Server Action とモーダルを実装する
+- [ ] #16 予定の削除 Server Action と確認ダイアログを実装する
 
 ## Phase 4: 検証・仕上げ
-- [ ] #? Realtime 購読で他タブへ反映する
-- [ ] #? ドラッグ＆ドロップで日時を変更する（検証。結果を `docs/` に記録）
-- [ ] #? README を更新し、不要依存（`entities` など）を整理する
+- [ ] #17 Realtime 購読で他タブへ反映する
+- [ ] #18 ドラッグ＆ドロップで日時を変更する（検証。結果を `docs/` に記録）
+- [ ] #19 README を更新し、不要依存（`entities` など）を整理する
 
 ## 依存関係
 ```
