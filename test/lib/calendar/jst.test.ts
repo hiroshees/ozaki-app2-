@@ -1,6 +1,9 @@
 import { afterEach, describe, expect, it } from "vitest";
 import {
+  addDays,
+  addMonths,
   formatYmd,
+  getWeekday,
   getJstDayRange,
   getJstMonthRange,
   getJstWeekRange,
@@ -239,6 +242,122 @@ describe("parseJstDateTime", () => {
     expect(parseJstDateTime("")).toBeNull();
     expect(parseJstDateTime(undefined)).toBeNull();
     expect(parseJstDateTime(null)).toBeNull();
+  });
+});
+
+describe("addDays", () => {
+  it("日を足し引きする", () => {
+    expect(addDays({ year: 2026, month: 10, day: 23 }, 1)).toEqual({
+      year: 2026,
+      month: 10,
+      day: 24,
+    });
+    expect(addDays({ year: 2026, month: 10, day: 23 }, -7)).toEqual({
+      year: 2026,
+      month: 10,
+      day: 16,
+    });
+  });
+
+  it("月末・年末・年初をまたぐ", () => {
+    expect(addDays({ year: 2026, month: 10, day: 31 }, 1)).toEqual({
+      year: 2026,
+      month: 11,
+      day: 1,
+    });
+    expect(addDays({ year: 2026, month: 12, day: 31 }, 1)).toEqual({
+      year: 2027,
+      month: 1,
+      day: 1,
+    });
+    expect(addDays({ year: 2026, month: 1, day: 1 }, -1)).toEqual({
+      year: 2025,
+      month: 12,
+      day: 31,
+    });
+  });
+
+  it("うるう年の 2 月を正しく扱う", () => {
+    expect(addDays({ year: 2024, month: 2, day: 28 }, 1)).toEqual({
+      year: 2024,
+      month: 2,
+      day: 29,
+    });
+    expect(addDays({ year: 2024, month: 2, day: 29 }, 1)).toEqual({
+      year: 2024,
+      month: 3,
+      day: 1,
+    });
+    expect(addDays({ year: 2025, month: 2, day: 28 }, 1)).toEqual({
+      year: 2025,
+      month: 3,
+      day: 1,
+    });
+  });
+});
+
+describe("addMonths", () => {
+  it("同じ日のまま月を足し引きする", () => {
+    expect(addMonths({ year: 2026, month: 10, day: 23 }, 1)).toEqual({
+      year: 2026,
+      month: 11,
+      day: 23,
+    });
+    expect(addMonths({ year: 2026, month: 10, day: 23 }, -1)).toEqual({
+      year: 2026,
+      month: 9,
+      day: 23,
+    });
+  });
+
+  it("年をまたぐ", () => {
+    expect(addMonths({ year: 2026, month: 12, day: 15 }, 1)).toEqual({
+      year: 2027,
+      month: 1,
+      day: 15,
+    });
+    expect(addMonths({ year: 2026, month: 1, day: 15 }, -1)).toEqual({
+      year: 2025,
+      month: 12,
+      day: 15,
+    });
+    expect(addMonths({ year: 2026, month: 10, day: 5 }, 14)).toEqual({
+      year: 2027,
+      month: 12,
+      day: 5,
+    });
+  });
+
+  it("移動先に同じ日がなければ月末に丸める", () => {
+    expect(addMonths({ year: 2026, month: 1, day: 31 }, 1)).toEqual({
+      year: 2026,
+      month: 2,
+      day: 28,
+    });
+    expect(addMonths({ year: 2024, month: 1, day: 31 }, 1)).toEqual({
+      year: 2024,
+      month: 2,
+      day: 29,
+    });
+    expect(addMonths({ year: 2026, month: 3, day: 31 }, -1)).toEqual({
+      year: 2026,
+      month: 2,
+      day: 28,
+    });
+    expect(addMonths({ year: 2026, month: 10, day: 31 }, 1)).toEqual({
+      year: 2026,
+      month: 11,
+      day: 30,
+    });
+  });
+});
+
+describe("getWeekday（0 = 日曜）", () => {
+  it("曜日を返す", () => {
+    expect(getWeekday({ year: 2026, month: 10, day: 18 })).toBe(0); // 日
+    expect(getWeekday({ year: 2026, month: 10, day: 23 })).toBe(5); // 金
+    expect(getWeekday({ year: 2026, month: 10, day: 24 })).toBe(6); // 土
+    expect(getWeekday({ year: 2024, month: 2, day: 29 })).toBe(4); // 木
   });
 });
 
