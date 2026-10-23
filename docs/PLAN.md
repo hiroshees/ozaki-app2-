@@ -6,7 +6,7 @@ Issue 作成後、`#?` を番号に置き換える。進捗は `[ ]` → `[x]` �
 ## Phase 1: 基盤整備
 - [x] #3 テンプレ由来の認証コードを撤去する（`utils/supabase/*`、`middleware.ts`、signin/signup、`actions/auth.ts`、`User`/`Sample` モデルなど）
 - [x] #4 CI と package manager を yarn に統一する（`ci.yml` が pnpm のまま。`vercel-build` の `prisma migrate deploy` の扱いも見直す）
-- [ ] #5 Vitest を導入する（`test` / `test:coverage` スクリプト追加。※新規依存のため事前確認）
+- [x] #5 Vitest を導入する（`test` / `test:coverage` スクリプト追加。※新規依存のため事前確認）
 - [ ] #6 `Event` モデルと初回マイグレーションを追加する（RLS: anon は SELECT のみ）
 - [ ] #7 サーバー専用 Supabase クライアントを追加する（`src/utils/supabase/admin.ts`、`server-only`、`SUPABASE_SECRET_KEY`、`.env.sample` 追記。※`server-only` は新規依存のため事前確認）
 
@@ -38,5 +38,5 @@ Issue 作成後、`#?` を番号に置き換える。進捗は `[ ]` → `[x]` �
 - 新規依存は追加前に確認する（Vitest、`react-calendar`、`server-only`）
 - 本番 DB に影響するコマンド（`prisma migrate deploy` など）は提示のみで実行しない
   - `vercel-build` から `prisma generate` と `prisma migrate deploy` を外し、`next build` のみにした。マイグレーションは手動で提示されたコマンドを実行する。`prisma generate` は Event モデル追加（#6）で必要になった時点で戻す（モデル 0 件だと `zod-prisma-types` が失敗するため）
-- CI は yarn で `install --frozen-lockfile` / lint / typecheck / build を実行する。`yarn test:coverage` は Vitest 導入（#5）で追加する
+- CI は yarn で `install --frozen-lockfile` / lint / typecheck / build を実行する。`yarn test:coverage` もここで実行する（カバレッジは出力のみで、最低ラインでの失敗判定はしない）
 - Issue 作成時は `phase-N` ラベルを付ける

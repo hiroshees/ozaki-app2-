@@ -31,8 +31,8 @@ jobs:
 
       - run: yarn typecheck
 
-      # TODO: Vitest 導入（Issue #5）後に `yarn test:coverage` を追加する。
-      # それまでは test スクリプトが無いため実行しない
+      # テストとあわせてカバレッジをログに出力する（最低ラインでの失敗判定はしない）
+      - run: yarn test:coverage
 
       # ビルドにシークレットは使わない（DB への実接続は行わない）
       - run: yarn build
