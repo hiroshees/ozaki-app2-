@@ -13,7 +13,7 @@ Issue 作成後、`#?` を番号に置き換える。進捗は `[ ]` → `[x]` �
 - [ ] #30 Prisma の生成まわりを整理する（`prisma generate` の失敗、生成物の `.gitignore`、`@prisma/client` の扱い）
 
 ## Phase 2: 表示
-- [ ] #8 日付ユーティリティを実装する（`src/lib/calendar/`: JST 変換、週・月の範囲計算。テスト先行）
+- [x] #8 日付ユーティリティを実装する（`src/lib/calendar/`: JST 変換、週・月の範囲計算。テスト先行）
 - [ ] #9 予定の型・zod スキーマ・範囲取得関数を実装する（`src/lib/events/`）
 - [ ] #10 searchParams（view, date）の解釈とヘッダーナビを実装する
 - [ ] #11 月ビューを実装する（`react-calendar` 導入。※新規依存のため事前確認）
