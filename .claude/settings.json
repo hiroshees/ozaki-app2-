@@ -9,7 +9,8 @@
       "Bash(npx tsc --noEmit)",
       "Read(./.env)",
       "Read(./.env.local)",
-      "Read(./.env.*.local)"
+      "Read(./.env.*.local)",
+      "Read(./.env.sample)"
     ],
     "ask": [
       "Bash(supabase db push *)",
