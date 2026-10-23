@@ -4,6 +4,7 @@ import {
   getJstDayRange,
   getJstMonthRange,
   getJstWeekRange,
+  parseJstDateTime,
   parseYmd,
   toJstYmd,
 } from "@/lib/calendar/jst";
@@ -198,6 +199,49 @@ describe("getJstMonthRange", () => {
   });
 });
 
+describe("parseJstDateTime", () => {
+  it("JST の YYYY-MM-DDTHH:mm を UTC の Date にする", () => {
+    // JST 23:30 は UTC 14:30
+    expect(parseJstDateTime("2026-10-23T23:30")?.toISOString()).toBe(
+      "2026-10-23T14:30:00.000Z",
+    );
+  });
+
+  it("JST 0:00 は前日の UTC 15:00", () => {
+    expect(parseJstDateTime("2026-10-24T00:00")?.toISOString()).toBe(
+      "2026-10-23T15:00:00.000Z",
+    );
+  });
+
+  it("月末・年末・うるう日でも正しい瞬間になる", () => {
+    expect(parseJstDateTime("2026-12-31T23:59")?.toISOString()).toBe(
+      "2026-12-31T14:59:00.000Z",
+    );
+    expect(parseJstDateTime("2024-02-29T08:00")?.toISOString()).toBe(
+      "2024-02-28T23:00:00.000Z",
+    );
+  });
+
+  it("存在しない日付・時刻は null", () => {
+    expect(parseJstDateTime("2026-02-30T10:00")).toBeNull();
+    expect(parseJstDateTime("2026-10-23T24:00")).toBeNull();
+    expect(parseJstDateTime("2026-10-23T10:60")).toBeNull();
+    expect(parseJstDateTime("2026-10-23T-1:00")).toBeNull();
+  });
+
+  it("形式が違うものは null（タイムゾーン付き・秒付き・日付のみを含む）", () => {
+    expect(parseJstDateTime("2026-10-23")).toBeNull();
+    expect(parseJstDateTime("2026-10-23 10:00")).toBeNull();
+    expect(parseJstDateTime("2026-10-23T10:00:00")).toBeNull();
+    expect(parseJstDateTime("2026-10-23T10:00Z")).toBeNull();
+    expect(parseJstDateTime("2026-10-23T10:00+09:00")).toBeNull();
+    expect(parseJstDateTime("2026-10-23T1:00")).toBeNull();
+    expect(parseJstDateTime("")).toBeNull();
+    expect(parseJstDateTime(undefined)).toBeNull();
+    expect(parseJstDateTime(null)).toBeNull();
+  });
+});
+
 describe("実行環境のタイムゾーンに依存しない", () => {
   const originalTz = process.env.TZ;
 
@@ -217,6 +261,9 @@ describe("実行環境のタイムゾーンに依存しない", () => {
         "2026-10-23T15:00:00.000Z",
         "2026-12-31T15:00:00.000Z",
       ].map((s) => formatYmd(toJstYmd(new Date(s)))),
+      parsed: ["2026-10-23T23:30", "2026-10-24T00:00"].map((s) =>
+        parseJstDateTime(s)?.toISOString(),
+      ),
       day: iso(getJstDayRange({ year: 2026, month: 10, day: 23 })),
       week: iso(getJstWeekRange({ year: 2026, month: 10, day: 23 })),
       month: iso(getJstMonthRange({ year: 2026, month: 10, day: 23 })),
