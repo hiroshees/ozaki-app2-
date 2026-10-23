@@ -15,25 +15,8 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-generator zod {
-  provider = "zod-prisma-types"
-  useMultipleFiles                 = false // default is false
-  writeBarrelFiles                 = false // default is true
-  createInputTypes                 = false // default is true
-  createModelTypes                 = true // default is true
-  addInputTypeValidation           = false // default is true
-  addIncludeType                   = false // default is true
-  addSelectType                    = false // default is true
-  validateWhereUniqueInput         = true // default is true
-  createOptionalDefaultValuesTypes = true // default is false
-  createRelationValuesTypes        = true // default is false
-  createPartialTypes               = true // default is false
-  useDefaultValidators             = true // default is true
-  coerceDate                       = true // default is true
-  writeNullishInModelTypes         = false // default is false
-}
-
-// 予定。書き込みは supabase-js（Server Actions）経由のため、updatedAt は DB トリガーでも更新する
+// 予定。updatedAt は Prisma の @updatedAt に加え、DB のトリガー（マイグレーション参照）でも更新する
+// （SQL から直接更新された場合にも追従させる）
 model Event {
   id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   title       String
