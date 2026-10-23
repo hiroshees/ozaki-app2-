@@ -1,6 +1,6 @@
 # 共有カレンダー（学習用）
 
-Next.js（App Router）+ TypeScript + Supabase + Prisma + react-calendar で作るカレンダー。
+Next.js（App Router）+ TypeScript + Supabase + Prisma + FullCalendar で作るカレンダー。
 仕様は `docs/SPEC.md`、実装計画と進捗は `docs/PLAN.md`。作業前に両方を読むこと。
 
 ## コマンド
@@ -12,11 +12,12 @@ Next.js（App Router）+ TypeScript + Supabase + Prisma + react-calendar で作�
 - 整形: `yarn prettier`（`src/` と `test/` を書き換える）。チェックのみは `yarn prettier:check`（CI で実行）
 
 ## 概要
-- Next.js（App Router）+ TypeScript + Supabase + Prisma + react-calendar で作るカレンダーを作る。
+- Next.js（App Router）+ TypeScript + Supabase + Prisma + FullCalendar で作るカレンダーを作る。
 - Supabaseを利用するが、ユーザ認証は行わない。postgreSQLをデータベースとして利用するだけにする。
 - SupabaseのDBと連動したカレンダーアプリになります。
-- 実際に公開しない。ローカル環境`react-calendar`で実現可能なことを確認するために構築するサービスになる。
-- `react-calendar`を利用して、月ビュー、週ビュー、日ビューを実現する。
+- 実際に公開しない。`FullCalendar` で実現可能なことをローカル環境で確認するために構築するサービスになる。
+- 当初は `react-calendar` を使っていたが、月ビューしかない（週・日ビューがない）ため FullCalendar に転換した（経緯は `docs/PLAN.md`）。
+- `FullCalendar`（v7、標準の MIT プラグインのみ。Premium は使わない）を利用して、月ビュー、週ビュー、日ビューを実現する。
 - カレンダーにイベントを新規登録、編集、削除を行う。
 - カレンダーは日本語で表示する。
 - カレンダーの日時は`Asia/Tokyo`にする。タイムゾーンに注意する。
@@ -43,7 +44,7 @@ Next.js（App Router）+ TypeScript + Supabase + Prisma + react-calendar で作�
 - 表示・日付の区切りは常に `Asia/Tokyo` 基準。
 
 ### ディレクトリ
-- `src/lib/calendar/` 日付グリッド・予定レイアウトの計算（純粋関数）
+- `src/lib/calendar/` JST の日付・範囲の計算（純粋関数）
 - `src/lib/events/` 予定の型、zod スキーマ、取得関数、Server Actions
 - `src/components/calendar/` カレンダーの UI
 - 表示状態（view, date）は URL の searchParams に持つ
