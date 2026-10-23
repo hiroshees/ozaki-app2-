@@ -4,7 +4,7 @@
 Issue 作成後、`#?` を番号に置き換える。進捗は `[ ]` → `[x]` で更新する。
 
 ## Phase 1: 基盤整備
-- [ ] #3 テンプレ由来の認証コードを撤去する（`utils/supabase/*`、`middleware.ts`、signin/signup、`actions/auth.ts`、`User`/`Sample` モデルなど）
+- [x] #3 テンプレ由来の認証コードを撤去する（`utils/supabase/*`、`middleware.ts`、signin/signup、`actions/auth.ts`、`User`/`Sample` モデルなど）
 - [ ] #4 CI と package manager を yarn に統一する（`ci.yml` が pnpm のまま。`vercel-build` の `prisma migrate deploy` の扱いも見直す）
 - [ ] #5 Vitest を導入する（`test` / `test:coverage` スクリプト追加。※新規依存のため事前確認）
 - [ ] #6 `Event` モデルと初回マイグレーションを追加する（RLS: anon は SELECT のみ）
