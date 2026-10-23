@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --skipLibCheck true --noEmit",
-    "vercel-build": "prisma generate && prisma migrate deploy && next build",
+    "vercel-build": "next build",
     "prisma:migrate:dev": "npx dotenv -e .env.local -- npx prisma migrate dev --name init",
     "prettier": "prettier -w src/"
   },
