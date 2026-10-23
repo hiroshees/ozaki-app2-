@@ -6,7 +6,7 @@ Next.js（App Router）+ TypeScript + Supabase + Prisma + react-calendar で作�
 ## コマンド
 - パッケージマネージャー: `yarn`（このプロジェクトのみ。グローバルの pnpm 方針より優先）
 - 開発サーバー: `yarn run dev`
-- テスト: `yarn test`（Vitest。導入は専用 Issue）
+- テスト: `yarn test`（Vitest）。カバレッジ付きは `yarn test:coverage`（CI で実行）
 - 型チェック: `yarn typecheck`
 - lint: `yarn lint`（`src/` と `test/` が対象）
 - 整形: `yarn prettier`（`src/` と `test/` を書き換える）。チェックのみは `yarn prettier:check`（CI で実行）
@@ -24,7 +24,7 @@ Next.js（App Router）+ TypeScript + Supabase + Prisma + react-calendar で作�
 
 ## アーキテクチャの決まりごと
 - 既存の `src/` 構造（actions, components, config, db, hooks, lib, types, utils）に従う
-- テンプレ由来の認証コード（`src/utils/supabase/*` の ssr クライアント、`middleware.ts`、signin/signup 画面、`User`/`Sample` モデル）は撤去対象。新規コードから参照しない（撤去は Issue #1 で実施）
+- テンプレ由来の認証コード（`src/utils/supabase/*` の ssr クライアント、`middleware.ts`、signin/signup 画面、`User`/`Sample` モデル）は Issue #3 で撤去済み。再導入しない
 
 ### データアクセス
 - 環境変数は `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY`（既存）と、サーバー専用の `SUPABASE_SECRET_KEY`（新規追加。`.env.sample` にも追記）
@@ -36,7 +36,7 @@ Next.js（App Router）+ TypeScript + Supabase + Prisma + react-calendar で作�
 - Prismaのスキーマファイルは以下に配置 `src/db/prisma/schema.prisma`
 - 予定の取得は、表示範囲だけなのか、一気に全部を取得するのかは検討する
 - DB の変更はマイグレーションファイルとして追加する。ダッシュボードで直接変更しない
-- ログインがないので `@supabase/ssr` は新規コードで使わない（既存利用箇所は撤去 Issue で削除）
+- ログインがないので `@supabase/ssr` は新規コードで使わない（既存の利用箇所は #3 で撤去済み。依存パッケージだけが残っている）
 
 ### 日付・タイムゾーン
 - DB の日時は `timestamptz`（UTC で保存）
