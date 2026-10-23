@@ -5,6 +5,7 @@ import {
   formatYmd,
   getWeekday,
   getJstDayRange,
+  getJstMonthGridRange,
   getJstMonthRange,
   getJstWeekRange,
   parseJstDateTime,
@@ -242,6 +243,56 @@ describe("parseJstDateTime", () => {
     expect(parseJstDateTime("")).toBeNull();
     expect(parseJstDateTime(undefined)).toBeNull();
     expect(parseJstDateTime(null)).toBeNull();
+  });
+});
+
+describe("getJstMonthGridRange（月ビューに見える範囲。日曜始まりの週単位）", () => {
+  it("2026-10: 10/1 が木曜なので、9/27（日）〜 10/31（土）の 5 週", () => {
+    expect(
+      iso(getJstMonthGridRange({ year: 2026, month: 10, day: 15 })),
+    ).toEqual([
+      "2026-09-26T15:00:00.000Z", // JST 9/27 00:00
+      "2026-10-31T15:00:00.000Z", // JST 11/1 00:00（含まない）
+    ]);
+  });
+
+  it("月初が日曜なら、その日から始まる（2026-11 は 11/1 〜 12/5 の 5 週）", () => {
+    expect(
+      iso(getJstMonthGridRange({ year: 2026, month: 11, day: 1 })),
+    ).toEqual(["2026-10-31T15:00:00.000Z", "2026-12-05T15:00:00.000Z"]);
+  });
+
+  it("ちょうど 4 週に収まる月（2026-02 は 2/1 〜 2/28）", () => {
+    expect(
+      iso(getJstMonthGridRange({ year: 2026, month: 2, day: 10 })),
+    ).toEqual(["2026-01-31T15:00:00.000Z", "2026-02-28T15:00:00.000Z"]);
+  });
+
+  it("6 週になる月（2026-08 は 7/26 〜 9/5）", () => {
+    expect(
+      iso(getJstMonthGridRange({ year: 2026, month: 8, day: 31 })),
+    ).toEqual(["2026-07-25T15:00:00.000Z", "2026-09-05T15:00:00.000Z"]);
+  });
+
+  it("うるう年の 2 月（2024-02 は 1/28 〜 3/2）", () => {
+    expect(
+      iso(getJstMonthGridRange({ year: 2024, month: 2, day: 29 })),
+    ).toEqual(["2024-01-27T15:00:00.000Z", "2024-03-02T15:00:00.000Z"]);
+  });
+
+  it("月の範囲を必ず含み、日数は 7 の倍数（28〜42 日）", () => {
+    for (let month = 1; month <= 12; month++) {
+      const date = { year: 2026, month, day: 1 };
+      const grid = getJstMonthGridRange(date);
+      const target = getJstMonthRange(date);
+      const days = (grid.end.getTime() - grid.start.getTime()) / 86_400_000;
+
+      expect(grid.start.getTime()).toBeLessThanOrEqual(target.start.getTime());
+      expect(grid.end.getTime()).toBeGreaterThanOrEqual(target.end.getTime());
+      expect(days % 7).toBe(0);
+      expect(days).toBeGreaterThanOrEqual(28);
+      expect(days).toBeLessThanOrEqual(42);
+    }
   });
 });
 

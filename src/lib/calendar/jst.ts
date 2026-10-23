@@ -152,3 +152,18 @@ export function getJstMonthRange({ year, month }: JstDate): DateRange {
     end: jstMidnight(year, month, 1),
   };
 }
+
+// 月ビューに見える範囲。月初を含む週の日曜 00:00 から、月末を含む週の土曜の翌日 00:00 まで。
+// 前後の月の日付も表示されるので、予定の取得はこの範囲で行う
+export function getJstMonthGridRange({ year, month }: JstDate): DateRange {
+  // 月初の前に見える前月の日数（月初が日曜なら 0）
+  const leading = getWeekday({ year, month, day: 1 });
+  // 翌月の 0 日目 = 当月の末日
+  const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  const weeks = Math.ceil((leading + daysInMonth) / 7);
+
+  return {
+    start: jstMidnight(year, month - 1, 1 - leading),
+    end: jstMidnight(year, month - 1, 1 - leading + weeks * 7),
+  };
+}
