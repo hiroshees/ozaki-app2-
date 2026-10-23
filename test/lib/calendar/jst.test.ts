@@ -1,13 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import {
-  addDays,
-  addMonths,
   formatYmd,
-  getWeekday,
   getJstDayRange,
-  getJstMonthGridRange,
-  getJstMonthRange,
-  getJstWeekRange,
   parseJstDateTime,
   parseYmd,
   toJstYmd,
@@ -133,76 +127,6 @@ describe("getJstDayRange", () => {
   });
 });
 
-describe("getJstWeekRange（日曜始まり）", () => {
-  it("2026-10-23（金）の週は 10/18（日）〜 10/24（土）", () => {
-    expect(iso(getJstWeekRange({ year: 2026, month: 10, day: 23 }))).toEqual([
-      "2026-10-17T15:00:00.000Z", // JST 10/18 00:00
-      "2026-10-24T15:00:00.000Z", // JST 10/25 00:00（含まない）
-    ]);
-  });
-
-  it("日曜はその日から始まる", () => {
-    expect(iso(getJstWeekRange({ year: 2026, month: 10, day: 18 }))).toEqual([
-      "2026-10-17T15:00:00.000Z",
-      "2026-10-24T15:00:00.000Z",
-    ]);
-  });
-
-  it("土曜は同じ週の最後の日", () => {
-    expect(iso(getJstWeekRange({ year: 2026, month: 10, day: 24 }))).toEqual([
-      "2026-10-17T15:00:00.000Z",
-      "2026-10-24T15:00:00.000Z",
-    ]);
-  });
-
-  it("月またぎ・年またぎの週: 2026-12-31（木）は 12/27 〜 1/2", () => {
-    expect(iso(getJstWeekRange({ year: 2026, month: 12, day: 31 }))).toEqual([
-      "2026-12-26T15:00:00.000Z", // JST 12/27 00:00
-      "2027-01-02T15:00:00.000Z", // JST 1/3 00:00（含まない）
-    ]);
-  });
-
-  it("うるう年の月またぎ: 2024-03-01（金）は 2/25 〜 3/2", () => {
-    expect(iso(getJstWeekRange({ year: 2024, month: 3, day: 1 }))).toEqual([
-      "2024-02-24T15:00:00.000Z", // JST 2/25 00:00
-      "2024-03-02T15:00:00.000Z", // JST 3/3 00:00（含まない）
-    ]);
-  });
-});
-
-describe("getJstMonthRange", () => {
-  it("JST の月初 00:00 から翌月初 00:00（含まない）", () => {
-    expect(iso(getJstMonthRange({ year: 2026, month: 10, day: 23 }))).toEqual([
-      "2026-09-30T15:00:00.000Z", // JST 10/1 00:00
-      "2026-10-31T15:00:00.000Z", // JST 11/1 00:00
-    ]);
-  });
-
-  it("日が月末でも同じ範囲になる", () => {
-    expect(iso(getJstMonthRange({ year: 2026, month: 10, day: 31 }))).toEqual(
-      iso(getJstMonthRange({ year: 2026, month: 10, day: 1 })),
-    );
-  });
-
-  it("12 月の翌月は翌年 1 月", () => {
-    expect(iso(getJstMonthRange({ year: 2026, month: 12, day: 15 }))).toEqual([
-      "2026-11-30T15:00:00.000Z", // JST 12/1 00:00
-      "2026-12-31T15:00:00.000Z", // JST 2027/1/1 00:00
-    ]);
-  });
-
-  it("2 月: うるう年は 29 日、平年は 28 日まで", () => {
-    expect(iso(getJstMonthRange({ year: 2024, month: 2, day: 10 }))).toEqual([
-      "2024-01-31T15:00:00.000Z",
-      "2024-02-29T15:00:00.000Z", // JST 3/1 00:00（29 日分）
-    ]);
-    expect(iso(getJstMonthRange({ year: 2025, month: 2, day: 10 }))).toEqual([
-      "2025-01-31T15:00:00.000Z",
-      "2025-02-28T15:00:00.000Z", // JST 3/1 00:00（28 日分）
-    ]);
-  });
-});
-
 describe("parseJstDateTime", () => {
   it("JST の YYYY-MM-DDTHH:mm を UTC の Date にする", () => {
     // JST 23:30 は UTC 14:30
@@ -246,172 +170,6 @@ describe("parseJstDateTime", () => {
   });
 });
 
-describe("getJstMonthGridRange（月ビューに見える範囲。日曜始まりの週単位）", () => {
-  it("2026-10: 10/1 が木曜なので、9/27（日）〜 10/31（土）の 5 週", () => {
-    expect(
-      iso(getJstMonthGridRange({ year: 2026, month: 10, day: 15 })),
-    ).toEqual([
-      "2026-09-26T15:00:00.000Z", // JST 9/27 00:00
-      "2026-10-31T15:00:00.000Z", // JST 11/1 00:00（含まない）
-    ]);
-  });
-
-  it("月初が日曜なら、その日から始まる（2026-11 は 11/1 〜 12/5 の 5 週）", () => {
-    expect(
-      iso(getJstMonthGridRange({ year: 2026, month: 11, day: 1 })),
-    ).toEqual(["2026-10-31T15:00:00.000Z", "2026-12-05T15:00:00.000Z"]);
-  });
-
-  it("ちょうど 4 週に収まる月（2026-02 は 2/1 〜 2/28）", () => {
-    expect(
-      iso(getJstMonthGridRange({ year: 2026, month: 2, day: 10 })),
-    ).toEqual(["2026-01-31T15:00:00.000Z", "2026-02-28T15:00:00.000Z"]);
-  });
-
-  it("6 週になる月（2026-08 は 7/26 〜 9/5）", () => {
-    expect(
-      iso(getJstMonthGridRange({ year: 2026, month: 8, day: 31 })),
-    ).toEqual(["2026-07-25T15:00:00.000Z", "2026-09-05T15:00:00.000Z"]);
-  });
-
-  it("うるう年の 2 月（2024-02 は 1/28 〜 3/2）", () => {
-    expect(
-      iso(getJstMonthGridRange({ year: 2024, month: 2, day: 29 })),
-    ).toEqual(["2024-01-27T15:00:00.000Z", "2024-03-02T15:00:00.000Z"]);
-  });
-
-  it("月の範囲を必ず含み、日数は 7 の倍数（28〜42 日）", () => {
-    for (let month = 1; month <= 12; month++) {
-      const date = { year: 2026, month, day: 1 };
-      const grid = getJstMonthGridRange(date);
-      const target = getJstMonthRange(date);
-      const days = (grid.end.getTime() - grid.start.getTime()) / 86_400_000;
-
-      expect(grid.start.getTime()).toBeLessThanOrEqual(target.start.getTime());
-      expect(grid.end.getTime()).toBeGreaterThanOrEqual(target.end.getTime());
-      expect(days % 7).toBe(0);
-      expect(days).toBeGreaterThanOrEqual(28);
-      expect(days).toBeLessThanOrEqual(42);
-    }
-  });
-});
-
-describe("addDays", () => {
-  it("日を足し引きする", () => {
-    expect(addDays({ year: 2026, month: 10, day: 23 }, 1)).toEqual({
-      year: 2026,
-      month: 10,
-      day: 24,
-    });
-    expect(addDays({ year: 2026, month: 10, day: 23 }, -7)).toEqual({
-      year: 2026,
-      month: 10,
-      day: 16,
-    });
-  });
-
-  it("月末・年末・年初をまたぐ", () => {
-    expect(addDays({ year: 2026, month: 10, day: 31 }, 1)).toEqual({
-      year: 2026,
-      month: 11,
-      day: 1,
-    });
-    expect(addDays({ year: 2026, month: 12, day: 31 }, 1)).toEqual({
-      year: 2027,
-      month: 1,
-      day: 1,
-    });
-    expect(addDays({ year: 2026, month: 1, day: 1 }, -1)).toEqual({
-      year: 2025,
-      month: 12,
-      day: 31,
-    });
-  });
-
-  it("うるう年の 2 月を正しく扱う", () => {
-    expect(addDays({ year: 2024, month: 2, day: 28 }, 1)).toEqual({
-      year: 2024,
-      month: 2,
-      day: 29,
-    });
-    expect(addDays({ year: 2024, month: 2, day: 29 }, 1)).toEqual({
-      year: 2024,
-      month: 3,
-      day: 1,
-    });
-    expect(addDays({ year: 2025, month: 2, day: 28 }, 1)).toEqual({
-      year: 2025,
-      month: 3,
-      day: 1,
-    });
-  });
-});
-
-describe("addMonths", () => {
-  it("同じ日のまま月を足し引きする", () => {
-    expect(addMonths({ year: 2026, month: 10, day: 23 }, 1)).toEqual({
-      year: 2026,
-      month: 11,
-      day: 23,
-    });
-    expect(addMonths({ year: 2026, month: 10, day: 23 }, -1)).toEqual({
-      year: 2026,
-      month: 9,
-      day: 23,
-    });
-  });
-
-  it("年をまたぐ", () => {
-    expect(addMonths({ year: 2026, month: 12, day: 15 }, 1)).toEqual({
-      year: 2027,
-      month: 1,
-      day: 15,
-    });
-    expect(addMonths({ year: 2026, month: 1, day: 15 }, -1)).toEqual({
-      year: 2025,
-      month: 12,
-      day: 15,
-    });
-    expect(addMonths({ year: 2026, month: 10, day: 5 }, 14)).toEqual({
-      year: 2027,
-      month: 12,
-      day: 5,
-    });
-  });
-
-  it("移動先に同じ日がなければ月末に丸める", () => {
-    expect(addMonths({ year: 2026, month: 1, day: 31 }, 1)).toEqual({
-      year: 2026,
-      month: 2,
-      day: 28,
-    });
-    expect(addMonths({ year: 2024, month: 1, day: 31 }, 1)).toEqual({
-      year: 2024,
-      month: 2,
-      day: 29,
-    });
-    expect(addMonths({ year: 2026, month: 3, day: 31 }, -1)).toEqual({
-      year: 2026,
-      month: 2,
-      day: 28,
-    });
-    expect(addMonths({ year: 2026, month: 10, day: 31 }, 1)).toEqual({
-      year: 2026,
-      month: 11,
-      day: 30,
-    });
-  });
-});
-
-describe("getWeekday（0 = 日曜）", () => {
-  it("曜日を返す", () => {
-    expect(getWeekday({ year: 2026, month: 10, day: 18 })).toBe(0); // 日
-    expect(getWeekday({ year: 2026, month: 10, day: 23 })).toBe(5); // 金
-    expect(getWeekday({ year: 2026, month: 10, day: 24 })).toBe(6); // 土
-    expect(getWeekday({ year: 2024, month: 2, day: 29 })).toBe(4); // 木
-  });
-});
-
 describe("実行環境のタイムゾーンに依存しない", () => {
   const originalTz = process.env.TZ;
 
@@ -435,8 +193,6 @@ describe("実行環境のタイムゾーンに依存しない", () => {
         parseJstDateTime(s)?.toISOString(),
       ),
       day: iso(getJstDayRange({ year: 2026, month: 10, day: 23 })),
-      week: iso(getJstWeekRange({ year: 2026, month: 10, day: 23 })),
-      month: iso(getJstMonthRange({ year: 2026, month: 10, day: 23 })),
     };
   }
 

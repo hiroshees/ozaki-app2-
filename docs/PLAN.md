@@ -19,7 +19,7 @@ Issue 作成後、`#?` を番号に置き換える。進捗は `[ ]` → `[x]` �
 - [x] #11 月ビューを実装する（`react-calendar`。FullCalendar への転換で #39 が置き換える）
 - ~~#12 予定の重なりレイアウト計算を実装する~~ **実施せずに終了**（FullCalendar が標準で行う）
 - ~~#13 週ビュー・日ビューを実装する~~ **実施せずに終了**（react-calendar に無い。FullCalendar が提供する）
-- [ ] #39 FullCalendar を導入し、月ビューを置き換える（`@fullcalendar/react` v7 と `temporal-polyfill`。承認済み）
+- [x] #39 FullCalendar を導入し、月ビューを置き換える（`@fullcalendar/react` v7 と `temporal-polyfill`。承認済み）
 - [ ] #40 FullCalendar で週ビュー・日ビューを追加する
 
 ## Phase 3: 予定の CRUD
@@ -53,12 +53,23 @@ Issue 作成後、`#?` を番号に置き換える。進捗は `[ ]` → `[x]` �
 ### 引き続き使うもの
 DB・マイグレーション、`jst.ts`（JST の日付計算）、`schema.ts`（入力検証）、`queries.ts`（範囲取得・重なり判定）、anon / admin クライアント
 
-### FullCalendar 導入で撤去するもの（#39 で一覧を確認してから）
-`react-calendar`、`month-view`、`CalendarNav`、`navigation.ts`、`month.ts`、`group.ts`、`getJstMonthGridRange` とそれらのテスト
+### FullCalendar 導入（#39）で撤去したもの
+- 依存: `react-calendar`
+- UI: `month-view.tsx` / `month-view.css`、`calendar-nav.tsx`
+- `lib/calendar/month.ts`（「+N 件」の計算、react-calendar の日付変換）、`lib/events/group.ts`（日ごとの予定の振り分け）
+- `navigation.ts` の `VIEW_LABELS` / `shiftCalendarDate` / `formatCalendarTitle`（FullCalendar のツールバーが担う）
+- `jst.ts` の `getJstMonthGridRange` / `getJstWeekRange` / `getJstMonthRange` / `addDays` / `addMonths` / `getWeekday`（FullCalendar が表示範囲を決める）
+- それぞれのテスト
 
-### 注意
-- v7 は 2026-06 公開の新しい版で、パッチが頻繁に出ている。挙動（特にタイムゾーン）は実際に確認しながら進める
-- FullCalendar が `dateClick` などで返す日付は、ネイティブの `Date`（瞬間）。JST の年月日への変換は `jst.ts` で行う
+残したもの: `parseYmd` / `formatYmd` / `toJstYmd` / `parseJstDateTime` / `getJstDayRange`（使用中）、`overlapsRange`（#17 の Realtime で、範囲外の変更を無視するために使う予定）
+
+### 注意（#39 で確認した内容）
+- v7 は 2026-06 公開の新しい版で、パッチが頻繁に出ている
+- `timeZone: 'Asia/Tokyo'` を指定すると、FullCalendar が返す `Date`（表示範囲、`datesSet` など）は**本当の瞬間**。JST の年月日への変換は `jst.ts` の `toJstYmd` で行う（実ブラウザで確認済み）
+- v7 は CSS のクラス名が難読化されている。ブラウザでの動作確認（自動操作）では、`aria-label`（「前」「次」「今日」）や `role="heading"` を使う
+- 予定の取得結果が**描画の完了より先に返る**と、FullCalendar 内部が「マウント前の状態更新」の警告を出す（実際のネットワーク取得では起きない）
+- 予定はブラウザから anon クライアントで直接読む（RLS で SELECT のみ許可）。クライアントは `getAnonClient()` で使い回す（作るたびに GoTrueClient の警告が出るため）
+- 予定の表示範囲は URL の searchParams と `history.replaceState` で同期する（サーバーの再描画は起きない）
 
 ## 方針メモ
 - 新規依存は追加前に確認する（Vitest、`react-calendar`、`server-only`、FullCalendar など）

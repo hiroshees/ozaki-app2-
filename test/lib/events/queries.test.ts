@@ -1,10 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { describe, expect, it } from "vitest";
-import {
-  getJstMonthRange,
-  getJstWeekRange,
-  parseJstDateTime,
-} from "@/lib/calendar/jst";
+import { parseJstDateTime } from "@/lib/calendar/jst";
 import { fetchEventsInRange, overlapsRange } from "@/lib/events/queries";
 
 // 範囲は [start, end)。JST の日時文字列から作る
@@ -98,9 +94,9 @@ describe("overlapsRange（範囲と重なるか）", () => {
   it("月をまたぐ予定は、前の月にも次の月にも重なる", () => {
     // 10/31 23:00 〜 11/1 01:00（JST）
     const crossing = event("2026-10-31T23:00", "2026-11-01T01:00");
-    const october = getJstMonthRange({ year: 2026, month: 10, day: 15 });
-    const november = getJstMonthRange({ year: 2026, month: 11, day: 15 });
-    const december = getJstMonthRange({ year: 2026, month: 12, day: 15 });
+    const october = range("2026-10-01T00:00", "2026-11-01T00:00");
+    const november = range("2026-11-01T00:00", "2026-12-01T00:00");
+    const december = range("2026-12-01T00:00", "2027-01-01T00:00");
 
     expect(overlapsRange(crossing, october)).toBe(true);
     expect(overlapsRange(crossing, november)).toBe(true);
@@ -110,8 +106,9 @@ describe("overlapsRange（範囲と重なるか）", () => {
   it("週をまたぐ予定は、前の週にも次の週にも重なる", () => {
     // 10/24（土）23:00 〜 10/25（日）01:00
     const crossing = event("2026-10-24T23:00", "2026-10-25T01:00");
-    const thisWeek = getJstWeekRange({ year: 2026, month: 10, day: 23 });
-    const nextWeek = getJstWeekRange({ year: 2026, month: 10, day: 26 });
+    // 10/18（日）〜 10/24（土）の週と、10/25（日）〜 10/31（土）の週
+    const thisWeek = range("2026-10-18T00:00", "2026-10-25T00:00");
+    const nextWeek = range("2026-10-25T00:00", "2026-11-01T00:00");
 
     expect(overlapsRange(crossing, thisWeek)).toBe(true);
     expect(overlapsRange(crossing, nextWeek)).toBe(true);
