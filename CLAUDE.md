@@ -30,6 +30,7 @@ Next.js（App Router）+ TypeScript + Supabase + Prisma + FullCalendar で作る
 ### データアクセス
 - **予定の読み取り・書き込みは、すべてサーバー側で Prisma を使う**。読み取りは Route Handler（`GET /api/events`）、書き込み（作成・更新・削除）は Server Actions。ブラウザ（クライアントコンポーネント）は DB に直接アクセスしない
 - Prisma クライアントは `src/db/prisma.ts` に置く（`server-only` で保護。クライアントコンポーネントから import しない）
+- supabase-js のクライアント（admin / anon）と `SUPABASE_SECRET_KEY` は撤去済み（#44）。ブラウザの Realtime 購読（#17）で必要になったら、anon クライアントを新しく作る
 - 環境変数は `DATABASE_URL`（Supabase のプーラー。実行時のクエリ用。`pgbouncer=true`）と `DIRECT_URL`（セッションモード。マイグレーション用）。ブラウザの Realtime 購読用に `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - ブラウザが DB へ直接アクセスするのは **Realtime の購読だけ**（anon キー。SELECT のみ。anon には INSERT/UPDATE/DELETE を許可しない）。Supabase 管理画面は使わない
 - Route Handler と Server Actions の入力は必ず zod で検証する
@@ -37,7 +38,6 @@ Next.js（App Router）+ TypeScript + Supabase + Prisma + FullCalendar で作る
 - 予定の取得は、表示範囲に重なるものだけを対象とする
 - DB の変更はマイグレーションファイルとして追加する。ダッシュボードで直接変更しない
 - ログインがないので `@supabase/ssr` は新規コードで使わない（既存の利用箇所は #3 で撤去済み。依存パッケージだけが残っている）
-- 【移行中】Prisma に統一する前の経緯で、supabase-js の admin クライアント（`src/utils/supabase/admin.ts`）と `SUPABASE_SECRET_KEY` が残っている。新規コードでは使わない。#44 で撤去する
 
 ### 日付・タイムゾーン
 - DB の日時は `timestamptz`（UTC で保存）
