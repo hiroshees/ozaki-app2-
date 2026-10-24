@@ -57,6 +57,9 @@ const HEADER_TOOLBAR = {
   right: "dayGridMonth,timeGridWeek,timeGridDay",
 };
 
+// カレンダーの高さ（px）。週・日ビューの時間軸は、この中でスクロールする
+const CALENDAR_HEIGHT = 500;
+
 // 1 日のセルに出す予定の最大件数。超過分は「+N 件」にまとめる
 const MAX_EVENTS_PER_DAY = 3;
 
@@ -186,63 +189,67 @@ export function EventCalendar({
   }, []);
 
   return (
-    <div className="px-4">
-      {loadFailed && (
-        <p role="alert" className="pb-2 text-sm text-red-600">
-          予定を取得できませんでした。時間をおいて再読み込みしてください。
-        </p>
-      )}
-      <FullCalendar
-        ref={calendarRef}
-        plugins={PLUGINS}
-        locale={jaLocale}
-        // DB は UTC で持ち、表示と日付の区切りは常に JST
-        timeZone="Asia/Tokyo"
-        // 日曜始まり
-        firstDay={0}
-        initialView={FULLCALENDAR_VIEW_NAMES[view]}
-        initialDate={formatYmd(date)}
-        headerToolbar={HEADER_TOOLBAR}
-        height="auto"
-        dayMaxEvents={MAX_EVENTS_PER_DAY}
-        // 時間軸は 30 分刻みで、0:00〜24:00 をすべて表示する（23:30 の予定も見える）。
-        // 高さは自動なので、24 時間分はページ全体のスクロールで見る
-        slotDuration="00:30:00"
-        // 日付（見出し）のクリックで、その日の日ビューへ移動する
-        navLinks
-        moreLinkContent={({ num }) => `+${num} 件`}
-        events={fetchEvents}
-        eventSourceSuccess={onEventsLoaded}
-        eventSourceFailure={onEventsFailed}
-        datesSet={syncUrl}
-        dateClick={openCreateModal}
-        eventClick={openEditModal}
-      />
-      {modal && (
-        <EventFormModal
-          // 別の予定・作成に切り替わったとき、入力中の値を持ち越さない
-          key={modal.id ?? "new"}
-          title={modal.id ? "予定を編集" : "予定を作成"}
-          initialValues={modal.values}
-          onSubmit={
-            modal.id
-              ? (input) => updateEventAction(modal.id, input)
-              : createEventAction
-          }
-          onSaved={handleSaved}
-          onClose={closeModal}
-          onDelete={modal.id ? openDeleteConfirm : undefined}
-          closeOnEscape={!confirmingDelete}
+    // 高さを固定すると横長になるので、12 列のグリッドの中央に置き、両脇に空きを作る
+    <div className="grid grid-cols-12 px-4">
+      <div className="col-span-12 md:col-span-10 md:col-start-2 lg:col-span-8 lg:col-start-3">
+        {loadFailed && (
+          <p role="alert" className="pb-2 text-sm text-red-600">
+            予定を取得できませんでした。時間をおいて再読み込みしてください。
+          </p>
+        )}
+        <FullCalendar
+          ref={calendarRef}
+          plugins={PLUGINS}
+          locale={jaLocale}
+          // DB は UTC で持ち、表示と日付の区切りは常に JST
+          timeZone="Asia/Tokyo"
+          // 日曜始まり
+          firstDay={0}
+          initialView={FULLCALENDAR_VIEW_NAMES[view]}
+          initialDate={formatYmd(date)}
+          headerToolbar={HEADER_TOOLBAR}
+          height={CALENDAR_HEIGHT}
+          dayMaxEvents={MAX_EVENTS_PER_DAY}
+          // 時間軸は 30 分刻みで、0:00〜24:00 をすべて表示する（23:30 の予定も見える）。
+          // 高さが固定なので、週・日ビューの 24 時間分は中でスクロールする。開いたときは 8:00 付近を見せる
+          scrollTime="08:00:00"
+          slotDuration="00:30:00"
+          // 日付（見出し）のクリックで、その日の日ビューへ移動する
+          navLinks
+          moreLinkContent={({ num }) => `+${num} 件`}
+          events={fetchEvents}
+          eventSourceSuccess={onEventsLoaded}
+          eventSourceFailure={onEventsFailed}
+          datesSet={syncUrl}
+          dateClick={openCreateModal}
+          eventClick={openEditModal}
         />
-      )}
-      {modal?.id && confirmingDelete && (
-        <DeleteConfirmDialog
-          eventTitle={modal.values.title}
-          onConfirm={() => deleteEventAction(modal.id)}
-          onDeleted={handleSaved}
-          onCancel={closeDeleteConfirm}
-        />
-      )}
+        {modal && (
+          <EventFormModal
+            // 別の予定・作成に切り替わったとき、入力中の値を持ち越さない
+            key={modal.id ?? "new"}
+            title={modal.id ? "予定を編集" : "予定を作成"}
+            initialValues={modal.values}
+            onSubmit={
+              modal.id
+                ? (input) => updateEventAction(modal.id, input)
+                : createEventAction
+            }
+            onSaved={handleSaved}
+            onClose={closeModal}
+            onDelete={modal.id ? openDeleteConfirm : undefined}
+            closeOnEscape={!confirmingDelete}
+          />
+        )}
+        {modal?.id && confirmingDelete && (
+          <DeleteConfirmDialog
+            eventTitle={modal.values.title}
+            onConfirm={() => deleteEventAction(modal.id)}
+            onDeleted={handleSaved}
+            onCancel={closeDeleteConfirm}
+          />
+        )}
+      </div>
     </div>
   );
 }
