@@ -24,14 +24,7 @@ export default async function Home({ searchParams }: HomeProps) {
     <>
       <Header />
       <div className="mt-16 mb-16">
-        {view === "month" ? (
-          <EventCalendar date={date} />
-        ) : (
-          // 週・日ビューは別 Issue（#40）で FullCalendar に追加する
-          <p className="p-8 text-center text-gray-500">
-            週ビュー・日ビューは今後実装します。
-          </p>
-        )}
+        <EventCalendar view={view} date={date} />
       </div>
       <Footer />
     </>

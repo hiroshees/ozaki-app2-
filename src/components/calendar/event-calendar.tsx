@@ -4,10 +4,18 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/react/daygrid";
 import jaLocale from "@fullcalendar/react/locales/ja";
 import classicThemePlugin from "@fullcalendar/react/themes/classic";
+import timeGridPlugin from "@fullcalendar/react/timegrid";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { formatYmd, type DateRange, type JstDate } from "@/lib/calendar/jst";
-import { pickUrlDate, toCalendarView } from "@/lib/calendar/fullcalendar";
-import { buildCalendarHref } from "@/lib/calendar/navigation";
+import {
+  FULLCALENDAR_VIEW_NAMES,
+  pickUrlDate,
+  toCalendarView,
+} from "@/lib/calendar/fullcalendar";
+import {
+  buildCalendarHref,
+  type CalendarView,
+} from "@/lib/calendar/navigation";
 import { fetchEventsFromApi } from "@/lib/events/client";
 import type { FullCalendarEvent } from "@/lib/events/fullcalendar";
 import "@fullcalendar/react/skeleton.css";
@@ -15,20 +23,27 @@ import "@fullcalendar/react/themes/classic/theme.css";
 import "@fullcalendar/react/themes/classic/palette.css";
 
 type EventCalendarProps = {
-  // 最初に表示する日（この日を含む月を表示する）
+  // 最初に表示するビュー
+  view: CalendarView;
+  // 最初に表示する日（この日を含む月・週・日を表示する）
   date: JstDate;
   // 表示範囲の予定を取得する。省略すると Route Handler（GET /api/events）から取得する
   loadEvents?: (range: DateRange) => Promise<FullCalendarEvent[]>;
 };
 
 // 配列やオブジェクトをコンポーネントの中で書くと、再描画のたびに「変更された」と扱われるので外に置く
-const PLUGINS = [dayGridPlugin, classicThemePlugin];
-const HEADER_TOOLBAR = { left: "prev,next today", center: "title", right: "" };
+const PLUGINS = [dayGridPlugin, timeGridPlugin, classicThemePlugin];
+const HEADER_TOOLBAR = {
+  left: "prev,next today",
+  center: "title",
+  right: "dayGridMonth,timeGridWeek,timeGridDay",
+};
 
 // 1 日のセルに出す予定の最大件数。超過分は「+N 件」にまとめる
 const MAX_EVENTS_PER_DAY = 3;
 
 export function EventCalendar({
+  view,
   date,
   loadEvents = fetchEventsFromApi,
 }: EventCalendarProps) {
@@ -54,8 +69,12 @@ export function EventCalendar({
 
   // 表示範囲が変わるたびに FullCalendar が呼ぶ。失敗は例外のまま投げ、eventSourceFailure で扱う
   const fetchEvents = useCallback(
-    (info: { start: Date; end: Date }) =>
-      loadEvents({ start: info.start, end: info.end }),
+    async (info: { start: Date; end: Date }) => {
+      // サーバーでの事前描画（SSR）でも呼ばれるが、相対 URL の fetch はサーバーでは失敗する。
+      // 予定はブラウザで取得するので、サーバーでは空にする
+      if (typeof window === "undefined") return [];
+      return loadEvents({ start: info.start, end: info.end });
+    },
     [loadEvents],
   );
   const onEventsLoaded = useCallback(
@@ -107,11 +126,16 @@ export function EventCalendar({
         timeZone="Asia/Tokyo"
         // 日曜始まり
         firstDay={0}
-        initialView="dayGridMonth"
+        initialView={FULLCALENDAR_VIEW_NAMES[view]}
         initialDate={formatYmd(date)}
         headerToolbar={HEADER_TOOLBAR}
         height="auto"
         dayMaxEvents={MAX_EVENTS_PER_DAY}
+        // 時間軸は 30 分刻みで、0:00〜24:00 をすべて表示する（23:30 の予定も見える）。
+        // 高さは自動なので、24 時間分はページ全体のスクロールで見る
+        slotDuration="00:30:00"
+        // 日付（見出し）のクリックで、その日の日ビューへ移動する
+        navLinks
         moreLinkContent={({ num }) => `+${num} 件`}
         events={fetchEvents}
         eventSourceSuccess={onEventsLoaded}
