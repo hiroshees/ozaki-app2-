@@ -37,7 +37,7 @@ Next.js（App Router）+ TypeScript + Supabase + Prisma + FullCalendar で作る
 - 予定の取得は、表示範囲に重なるものだけを対象とする
 - DB の変更はマイグレーションファイルとして追加する。ダッシュボードで直接変更しない
 - ログインがないので `@supabase/ssr` は新規コードで使わない（既存の利用箇所は #3 で撤去済み。依存パッケージだけが残っている）
-- 【移行中】Prisma に統一する前の経緯で、supabase-js の admin クライアント（`src/utils/supabase/admin.ts`）、`SUPABASE_SECRET_KEY`、ブラウザから予定を読む処理（`fetchEventsInRange`）が残っている。新規コードでは使わない。順に撤去する（#43 → #44）
+- 【移行中】Prisma に統一する前の経緯で、supabase-js の admin クライアント（`src/utils/supabase/admin.ts`）と `SUPABASE_SECRET_KEY` が残っている。新規コードでは使わない。#44 で撤去する
 
 ### 日付・タイムゾーン
 - DB の日時は `timestamptz`（UTC で保存）

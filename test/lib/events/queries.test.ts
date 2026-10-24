@@ -1,7 +1,6 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
 import { describe, expect, it } from "vitest";
 import { parseJstDateTime } from "@/lib/calendar/jst";
-import { fetchEventsInRange, overlapsRange } from "@/lib/events/queries";
+import { overlapsRange } from "@/lib/events/queries";
 
 // 範囲は [start, end)。JST の日時文字列から作る
 function jst(value: string) {
@@ -112,108 +111,5 @@ describe("overlapsRange（範囲と重なるか）", () => {
 
     expect(overlapsRange(crossing, thisWeek)).toBe(true);
     expect(overlapsRange(crossing, nextWeek)).toBe(true);
-  });
-});
-
-// Supabase のクエリビルダーの代わり。呼ばれたメソッドと引数を記録し、最後に結果を返す
-function fakeClient(result: {
-  data: unknown;
-  error: { message: string } | null;
-}) {
-  const calls: { method: string; args: unknown[] }[] = [];
-  const builder = {
-    then: (
-      resolve: (value: typeof result) => unknown,
-      reject?: (reason: unknown) => unknown,
-    ) => Promise.resolve(result).then(resolve, reject),
-  } as Record<string, unknown>;
-
-  for (const method of ["select", "lt", "or", "order"]) {
-    builder[method] = (...args: unknown[]) => {
-      calls.push({ method, args });
-      return builder;
-    };
-  }
-
-  const client = {
-    from: (...args: unknown[]) => {
-      calls.push({ method: "from", args });
-      return builder;
-    },
-  } as unknown as SupabaseClient;
-
-  return { client, calls };
-}
-
-const row = {
-  id: "3f0c6a64-6f2b-4a54-9d3a-2b8d8f6a1c10",
-  title: "打ち合わせ",
-  description: null,
-  startAt: "2026-10-23T01:00:00+00:00",
-  endAt: "2026-10-23T02:00:00+00:00",
-  allDay: false,
-  createdAt: "2026-10-22T00:00:00+00:00",
-  updatedAt: "2026-10-22T00:00:00+00:00",
-};
-
-describe("fetchEventsInRange", () => {
-  it("範囲と重なる条件で events を問い合わせる", async () => {
-    const { client, calls } = fakeClient({ data: [], error: null });
-    const start = jst("2026-10-23T00:00");
-    const end = jst("2026-10-24T00:00");
-
-    await fetchEventsInRange(client, { start, end });
-
-    // 2026-10-22T15:00:00.000Z / 2026-10-23T15:00:00.000Z
-    expect(calls).toEqual([
-      { method: "from", args: ["events"] },
-      { method: "select", args: ["*"] },
-      { method: "lt", args: ["startAt", "2026-10-23T15:00:00.000Z"] },
-      {
-        method: "or",
-        args: [
-          "endAt.gt.2026-10-22T15:00:00.000Z,startAt.gte.2026-10-22T15:00:00.000Z",
-        ],
-      },
-      { method: "order", args: ["startAt", { ascending: true }] },
-      { method: "order", args: ["endAt", { ascending: true }] },
-      { method: "order", args: ["id", { ascending: true }] },
-    ]);
-  });
-
-  it("取得した行を Date に変換した予定で返す", async () => {
-    const { client } = fakeClient({ data: [row], error: null });
-
-    const events = await fetchEventsInRange(client, day);
-
-    expect(events).toHaveLength(1);
-    expect(events[0].title).toBe("打ち合わせ");
-    expect(events[0].startAt).toBeInstanceOf(Date);
-    expect(events[0].startAt.toISOString()).toBe("2026-10-23T01:00:00.000Z");
-  });
-
-  it("該当なしなら空配列を返す", async () => {
-    const { client } = fakeClient({ data: [], error: null });
-    expect(await fetchEventsInRange(client, day)).toEqual([]);
-  });
-
-  it("Supabase のエラーは日本語のメッセージ付きで例外にする", async () => {
-    const { client } = fakeClient({
-      data: null,
-      error: { message: "boom" },
-    });
-
-    await expect(fetchEventsInRange(client, day)).rejects.toThrow(
-      "予定の取得に失敗しました: boom",
-    );
-  });
-
-  it("想定外の形式の行は例外にする", async () => {
-    const { client } = fakeClient({
-      data: [{ ...row, startAt: "invalid" }],
-      error: null,
-    });
-
-    await expect(fetchEventsInRange(client, day)).rejects.toThrow();
   });
 });
