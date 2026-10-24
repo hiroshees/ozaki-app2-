@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { parseJstDateTime } from "@/lib/calendar/jst";
 import {
   defaultFormValues,
+  eventToFormValues,
   nextDay,
   toEventInput,
   type EventFormValues,
@@ -103,5 +104,89 @@ describe("toEventInput（フォームの値を保存用の入力にする）", (
     const input = toEventInput(values({ allDay: true, start: "", end: "" }));
     expect(input.startAt).toBe("");
     expect(input.endAt).toBe("");
+  });
+});
+
+describe("eventToFormValues（既存の予定からフォームの初期値を作る）", () => {
+  it("時刻つきの予定は JST の日時にする", () => {
+    expect(
+      eventToFormValues({
+        title: "会議",
+        description: "週次",
+        allDay: false,
+        start: new Date("2026-10-23T14:30:00Z"),
+        end: new Date("2026-10-23T15:30:00Z"),
+      }),
+    ).toEqual({
+      title: "会議",
+      description: "週次",
+      allDay: false,
+      start: "2026-10-23T23:30",
+      end: "2026-10-24T00:30",
+    });
+  });
+
+  it("説明が null なら空文字にする", () => {
+    expect(
+      eventToFormValues({
+        title: "t",
+        description: null,
+        allDay: false,
+        start: new Date("2026-10-23T01:00:00Z"),
+        end: new Date("2026-10-23T02:00:00Z"),
+      }).description,
+    ).toBe("");
+  });
+
+  it("終日の予定は、終了日を含む日付にする（終了は翌日 0:00 なので 1 日戻す）", () => {
+    const values = eventToFormValues({
+      title: "出張",
+      description: null,
+      allDay: true,
+      // JST 10/23 0:00 〜 10/26 0:00（3 日間）
+      start: new Date("2026-10-22T15:00:00Z"),
+      end: new Date("2026-10-25T15:00:00Z"),
+    });
+    expect(values.allDay).toBe(true);
+    expect(values.start.slice(0, 10)).toBe("2026-10-23");
+    expect(values.end.slice(0, 10)).toBe("2026-10-25");
+  });
+
+  it("終日で end がないときは、開始日の 1 日だけにする", () => {
+    const values = eventToFormValues({
+      title: "t",
+      description: null,
+      allDay: true,
+      start: new Date("2026-10-22T15:00:00Z"),
+      end: null,
+    });
+    expect(values.start.slice(0, 10)).toBe("2026-10-23");
+    expect(values.end.slice(0, 10)).toBe("2026-10-23");
+  });
+
+  it("終日の予定をフォームに通して保存用に戻すと、元の範囲になる", () => {
+    const input = toEventInput(
+      eventToFormValues({
+        title: "出張",
+        description: null,
+        allDay: true,
+        start: new Date("2026-10-22T15:00:00Z"),
+        end: new Date("2026-10-25T15:00:00Z"),
+      }),
+    );
+    expect(input.startAt).toBe("2026-10-23T00:00");
+    expect(input.endAt).toBe("2026-10-26T00:00");
+  });
+
+  it("時刻つきで end がないときは、開始から 1 時間にする", () => {
+    const values = eventToFormValues({
+      title: "t",
+      description: null,
+      allDay: false,
+      start: new Date("2026-10-23T01:00:00Z"),
+      end: null,
+    });
+    expect(values.start).toBe("2026-10-23T10:00");
+    expect(values.end).toBe("2026-10-23T11:00");
   });
 });

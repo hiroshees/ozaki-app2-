@@ -18,8 +18,12 @@ import {
   type CalendarView,
 } from "@/lib/calendar/navigation";
 import { EventFormModal } from "@/components/calendar/event-form-modal";
-import { createEventAction } from "@/lib/events/actions";
-import { defaultFormValues, type EventFormValues } from "@/lib/events/form";
+import { createEventAction, updateEventAction } from "@/lib/events/actions";
+import {
+  defaultFormValues,
+  eventToFormValues,
+  type EventFormValues,
+} from "@/lib/events/form";
 import { fetchEventsFromApi } from "@/lib/events/client";
 import type { FullCalendarEvent } from "@/lib/events/fullcalendar";
 import "@fullcalendar/react/skeleton.css";
@@ -57,10 +61,11 @@ export function EventCalendar({
   loadEvents = fetchEventsFromApi,
 }: EventCalendarProps) {
   const [loadFailed, setLoadFailed] = useState(false);
-  // 作成モーダルの初期値。null のときは閉じている
-  const [createValues, setCreateValues] = useState<EventFormValues | null>(
-    null,
-  );
+  // 開いているモーダル。null のときは閉じている。編集のときは対象の予定の id を持つ
+  const [modal, setModal] = useState<{
+    id: string | null;
+    values: EventFormValues;
+  } | null>(null);
   const calendarRef = useRef<CalendarRef>(null);
   // URL に書いている date。範囲の中を動いている間は維持し、範囲の外へ移動したら更新する
   const urlDate = useRef(date);
@@ -129,13 +134,41 @@ export function EventCalendar({
   // 空きセル（日付・時間枠）のクリックで作成モーダルを開く
   const openCreateModal = useCallback(
     (info: { date: Date; allDay: boolean }) =>
-      setCreateValues(defaultFormValues(info.date, info.allDay)),
+      setModal({ id: null, values: defaultFormValues(info.date, info.allDay) }),
     [],
   );
-  const closeCreateModal = useCallback(() => setCreateValues(null), []);
+  // 予定のクリックで、既存の値が入った編集モーダルを開く
+  const openEditModal = useCallback(
+    (info: {
+      event: {
+        id: string;
+        title: string;
+        allDay: boolean;
+        start: Date | null;
+        end: Date | null;
+        extendedProps: Record<string, unknown>;
+      };
+    }) => {
+      const { event } = info;
+      if (!event.start) return;
+      const description = event.extendedProps.description;
+      setModal({
+        id: event.id,
+        values: eventToFormValues({
+          title: event.title,
+          description: typeof description === "string" ? description : null,
+          allDay: event.allDay,
+          start: event.start,
+          end: event.end,
+        }),
+      });
+    },
+    [],
+  );
+  const closeModal = useCallback(() => setModal(null), []);
   // 保存できたら閉じて、表示範囲の予定を取得し直す
   const handleSaved = useCallback(() => {
-    setCreateValues(null);
+    setModal(null);
     calendarRef.current?.getApi().refetchEvents();
   }, []);
 
@@ -170,14 +203,21 @@ export function EventCalendar({
         eventSourceFailure={onEventsFailed}
         datesSet={syncUrl}
         dateClick={openCreateModal}
+        eventClick={openEditModal}
       />
-      {createValues && (
+      {modal && (
         <EventFormModal
-          title="予定を作成"
-          initialValues={createValues}
-          onSubmit={createEventAction}
+          // 別の予定・作成に切り替わったとき、入力中の値を持ち越さない
+          key={modal.id ?? "new"}
+          title={modal.id ? "予定を編集" : "予定を作成"}
+          initialValues={modal.values}
+          onSubmit={
+            modal.id
+              ? (input) => updateEventAction(modal.id, input)
+              : createEventAction
+          }
           onSaved={handleSaved}
-          onClose={closeCreateModal}
+          onClose={closeModal}
         />
       )}
     </div>

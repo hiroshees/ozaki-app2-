@@ -67,3 +67,36 @@ export function toEventInput(values: EventFormValues): EventInputRaw {
     endAt: endDate ? `${endDate}T00:00` : "",
   };
 }
+
+// 既存の予定（FullCalendar の予定の値）から、編集フォームの初期値を作る。
+// 終日の予定の end は「含まない翌日 0:00」なので、フォームの「終了日（含む）」には 1 日戻す
+export function eventToFormValues(event: {
+  title: string;
+  description: string | null;
+  allDay: boolean;
+  start: Date;
+  end: Date | null;
+}): EventFormValues {
+  const { title, allDay, start } = event;
+  const description = event.description ?? "";
+
+  if (allDay) {
+    // 終了が 0:00 ちょうどなので、1 ミリ秒戻すと前日になる
+    const lastDay = event.end ? new Date(event.end.getTime() - 1) : start;
+    return {
+      title,
+      description,
+      allDay,
+      start: formatJstDateTime(start),
+      end: formatJstDateTime(lastDay),
+    };
+  }
+
+  return {
+    title,
+    description,
+    allDay,
+    start: formatJstDateTime(start),
+    end: formatJstDateTime(event.end ?? new Date(start.getTime() + HOUR_MS)),
+  };
+}

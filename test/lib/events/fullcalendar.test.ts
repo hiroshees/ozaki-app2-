@@ -34,6 +34,7 @@ describe("toFullCalendarEvent", () => {
     ).toEqual({
       id: "3f0c6a64-6f2b-4a54-9d3a-2b8d8f6a1c10",
       title: "打ち合わせ",
+      description: "メモ",
       start: "2026-10-23T14:30:00.000Z",
       end: "2026-10-23T15:30:00.000Z",
       allDay: false,
@@ -65,12 +66,13 @@ describe("toFullCalendarEvent", () => {
     expect(result.start).toBe("2026-10-23");
   });
 
-  it("説明などの余分な項目は渡さない（画面に必要な項目だけ）", () => {
+  it("編集モーダルで使う説明は渡すが、作成日時などは渡さない（画面に必要な項目だけ）", () => {
     const result = toFullCalendarEvent(
       event("2026-10-23T10:00", "2026-10-23T11:00"),
     );
     expect(Object.keys(result).sort()).toEqual([
       "allDay",
+      "description",
       "end",
       "id",
       "start",
