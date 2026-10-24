@@ -41,6 +41,7 @@ describe("GET /api/events", () => {
       {
         id: "11111111-1111-4111-8111-111111111111",
         title: "会議",
+        description: null,
         allDay: false,
         start: "2026-10-23T14:30:00.000Z",
         end: "2026-10-23T15:30:00.000Z",
