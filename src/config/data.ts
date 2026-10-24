@@ -1,3 +1,3 @@
-const APPNAME = "NextMovie";
+const APPNAME = "Calendar";
 
 export { APPNAME };
