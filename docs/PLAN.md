@@ -26,7 +26,7 @@ Issue 作成後、`#?` を番号に置き換える。進捗は `[ ]` → `[x]` �
 ## Phase 3: 予定の CRUD
 - [x] #14 予定の作成 Server Action（Prisma）とモーダルを実装する
 - [x] #15 予定の編集 Server Action（Prisma）とモーダルを実装する
-- [ ] #16 予定の削除 Server Action（Prisma）と確認ダイアログを実装する
+- [x] #16 予定の削除 Server Action（Prisma）と確認ダイアログを実装する
 - [ ] #44 supabase-js の admin クライアントと `SUPABASE_SECRET_KEY` を撤去する（`server-only` は残す）
 
 ## Phase 4: 検証・仕上げ

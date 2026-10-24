@@ -17,8 +17,13 @@ import {
   buildCalendarHref,
   type CalendarView,
 } from "@/lib/calendar/navigation";
+import { DeleteConfirmDialog } from "@/components/calendar/delete-confirm-dialog";
 import { EventFormModal } from "@/components/calendar/event-form-modal";
-import { createEventAction, updateEventAction } from "@/lib/events/actions";
+import {
+  createEventAction,
+  deleteEventAction,
+  updateEventAction,
+} from "@/lib/events/actions";
 import {
   defaultFormValues,
   eventToFormValues,
@@ -66,6 +71,8 @@ export function EventCalendar({
     id: string | null;
     values: EventFormValues;
   } | null>(null);
+  // 削除の確認ダイアログを出しているか（編集モーダルの上に重ねる）
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
   const calendarRef = useRef<CalendarRef>(null);
   // URL に書いている date。範囲の中を動いている間は維持し、範囲の外へ移動したら更新する
   const urlDate = useRef(date);
@@ -165,10 +172,16 @@ export function EventCalendar({
     },
     [],
   );
-  const closeModal = useCallback(() => setModal(null), []);
-  // 保存できたら閉じて、表示範囲の予定を取得し直す
+  const closeModal = useCallback(() => {
+    setModal(null);
+    setConfirmingDelete(false);
+  }, []);
+  const openDeleteConfirm = useCallback(() => setConfirmingDelete(true), []);
+  const closeDeleteConfirm = useCallback(() => setConfirmingDelete(false), []);
+  // 保存・削除できたら閉じて、表示範囲の予定を取得し直す
   const handleSaved = useCallback(() => {
     setModal(null);
+    setConfirmingDelete(false);
     calendarRef.current?.getApi().refetchEvents();
   }, []);
 
@@ -218,6 +231,16 @@ export function EventCalendar({
           }
           onSaved={handleSaved}
           onClose={closeModal}
+          onDelete={modal.id ? openDeleteConfirm : undefined}
+          closeOnEscape={!confirmingDelete}
+        />
+      )}
+      {modal?.id && confirmingDelete && (
+        <DeleteConfirmDialog
+          eventTitle={modal.values.title}
+          onConfirm={() => deleteEventAction(modal.id)}
+          onDeleted={handleSaved}
+          onCancel={closeDeleteConfirm}
         />
       )}
     </div>
