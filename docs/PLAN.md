@@ -24,7 +24,7 @@ Issue 作成後、`#?` を番号に置き換える。進捗は `[ ]` → `[x]` �
 - [x] #43 予定の取得を Prisma + Route Handler に切り替える（`GET /api/events`。ブラウザから supabase-js・zod が不要になる。#30 が前提）
 
 ## Phase 3: 予定の CRUD
-- [ ] #14 予定の作成 Server Action（Prisma）とモーダルを実装する
+- [x] #14 予定の作成 Server Action（Prisma）とモーダルを実装する
 - [ ] #15 予定の編集 Server Action（Prisma）とモーダルを実装する
 - [ ] #16 予定の削除 Server Action（Prisma）と確認ダイアログを実装する
 - [ ] #44 supabase-js の admin クライアントと `SUPABASE_SECRET_KEY` を撤去する（`server-only` は残す）

@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
 import {
+  formatJstDateTime,
   formatYmd,
   getJstDayRange,
   parseJstDateTime,
@@ -167,6 +168,29 @@ describe("parseJstDateTime", () => {
     expect(parseJstDateTime("")).toBeNull();
     expect(parseJstDateTime(undefined)).toBeNull();
     expect(parseJstDateTime(null)).toBeNull();
+  });
+});
+
+describe("formatJstDateTime", () => {
+  it("瞬間を JST の YYYY-MM-DDTHH:mm にする", () => {
+    expect(formatJstDateTime(new Date("2026-10-23T14:30:00Z"))).toBe(
+      "2026-10-23T23:30",
+    );
+    expect(formatJstDateTime(new Date("2026-10-23T15:00:00Z"))).toBe(
+      "2026-10-24T00:00",
+    );
+  });
+
+  it("parseJstDateTime と往復できる（秒以下は切り捨て）", () => {
+    const value = "2024-02-29T08:05";
+    expect(formatJstDateTime(parseJstDateTime(value)!)).toBe(value);
+    expect(formatJstDateTime(new Date("2026-10-23T14:30:59.999Z"))).toBe(
+      "2026-10-23T23:30",
+    );
+  });
+
+  it("不正な Date は例外を投げる", () => {
+    expect(() => formatJstDateTime(new Date("invalid"))).toThrow(RangeError);
   });
 });
 
