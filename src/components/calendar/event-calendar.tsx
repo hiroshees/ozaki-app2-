@@ -8,10 +8,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { formatYmd, type DateRange, type JstDate } from "@/lib/calendar/jst";
 import { pickUrlDate, toCalendarView } from "@/lib/calendar/fullcalendar";
 import { buildCalendarHref } from "@/lib/calendar/navigation";
-import { toFullCalendarEvent } from "@/lib/events/fullcalendar";
-import { fetchEventsInRange } from "@/lib/events/queries";
-import type { CalendarEvent } from "@/lib/events/schema";
-import { getAnonClient } from "@/utils/supabase/anon";
+import { fetchEventsFromApi } from "@/lib/events/client";
+import type { FullCalendarEvent } from "@/lib/events/fullcalendar";
 import "@fullcalendar/react/skeleton.css";
 import "@fullcalendar/react/themes/classic/theme.css";
 import "@fullcalendar/react/themes/classic/palette.css";
@@ -19,8 +17,8 @@ import "@fullcalendar/react/themes/classic/palette.css";
 type EventCalendarProps = {
   // 最初に表示する日（この日を含む月を表示する）
   date: JstDate;
-  // 表示範囲の予定を取得する。省略するとブラウザから Supabase（anon）で読む
-  loadEvents?: (range: DateRange) => Promise<CalendarEvent[]>;
+  // 表示範囲の予定を取得する。省略すると Route Handler（GET /api/events）から取得する
+  loadEvents?: (range: DateRange) => Promise<FullCalendarEvent[]>;
 };
 
 // 配列やオブジェクトをコンポーネントの中で書くと、再描画のたびに「変更された」と扱われるので外に置く
@@ -30,13 +28,9 @@ const HEADER_TOOLBAR = { left: "prev,next today", center: "title", right: "" };
 // 1 日のセルに出す予定の最大件数。超過分は「+N 件」にまとめる
 const MAX_EVENTS_PER_DAY = 3;
 
-function loadFromSupabase(range: DateRange) {
-  return fetchEventsInRange(getAnonClient(), range);
-}
-
 export function EventCalendar({
   date,
-  loadEvents = loadFromSupabase,
+  loadEvents = fetchEventsFromApi,
 }: EventCalendarProps) {
   const [loadFailed, setLoadFailed] = useState(false);
   // URL に書いている date。範囲の中を動いている間は維持し、範囲の外へ移動したら更新する
@@ -60,10 +54,8 @@ export function EventCalendar({
 
   // 表示範囲が変わるたびに FullCalendar が呼ぶ。失敗は例外のまま投げ、eventSourceFailure で扱う
   const fetchEvents = useCallback(
-    async (info: { start: Date; end: Date }) => {
-      const events = await loadEvents({ start: info.start, end: info.end });
-      return events.map(toFullCalendarEvent);
-    },
+    (info: { start: Date; end: Date }) =>
+      loadEvents({ start: info.start, end: info.end }),
     [loadEvents],
   );
   const onEventsLoaded = useCallback(

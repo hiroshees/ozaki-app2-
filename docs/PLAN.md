@@ -21,7 +21,7 @@ Issue 作成後、`#?` を番号に置き換える。進捗は `[ ]` → `[x]` �
 - ~~#13 週ビュー・日ビューを実装する~~ **実施せずに終了**（react-calendar に無い。FullCalendar が提供する）
 - [x] #39 FullCalendar を導入し、月ビューを置き換える（`@fullcalendar/react` v7 と `temporal-polyfill`。承認済み）
 - [ ] #40 FullCalendar で週ビュー・日ビューを追加する
-- [ ] #43 予定の取得を Prisma + Route Handler に切り替える（`GET /api/events`。ブラウザから supabase-js・zod が不要になる。#30 が前提）
+- [x] #43 予定の取得を Prisma + Route Handler に切り替える（`GET /api/events`。ブラウザから supabase-js・zod が不要になる。#30 が前提）
 
 ## Phase 3: 予定の CRUD
 - [ ] #14 予定の作成 Server Action（Prisma）とモーダルを実装する
@@ -53,7 +53,7 @@ FullCalendar の月ビュー（#39）の導入後、データアクセスの方�
 
 ### 影響
 - **#30 の方向が変わる**: 「`@prisma/client` を外す」から「バージョンをそろえて使えるようにする」へ
-- **ブラウザの JS が小さくなる**: supabase-js と zod がブラウザ向けバンドルから消える（#43 で計測）
+- **ブラウザの JS が小さくなる**: supabase-js と zod がブラウザ向けバンドルから消える（#43 で計測: `/` の JS 144 kB → 66.3 kB、初回 255 kB → 177 kB）
 - **撤去する**: supabase-js の admin クライアント（`utils/supabase/admin.ts`）、`SUPABASE_SECRET_KEY`（#44）。`server-only` は Prisma クライアントの保護に使うため残す
 - **残す**: `getAnonClient()`（Realtime 用）、`overlapsRange`（#17）、`EventInputSchema`（書き込みの検証）、`toFullCalendarEvent`
 - **RLS は Prisma には効かない**（DB のロールで接続するため）。Route Handler には認証がなく、誰でも GET できる（公開しない学習用のため許容する）
@@ -88,7 +88,7 @@ DB・マイグレーション、`jst.ts`（JST の日付計算）、`schema.ts`�
 - `timeZone: 'Asia/Tokyo'` を指定すると、FullCalendar が返す `Date`（表示範囲、`datesSet` など）は**本当の瞬間**。JST の年月日への変換は `jst.ts` の `toJstYmd` で行う（実ブラウザで確認済み）
 - v7 は CSS のクラス名が難読化されている。ブラウザでの動作確認（自動操作）では、`aria-label`（「前」「次」「今日」）や `role="heading"` を使う
 - 予定の取得結果が**描画の完了より先に返る**と、FullCalendar 内部が「マウント前の状態更新」の警告を出す（実際のネットワーク取得では起きない）
-- 予定の取得は、現状ブラウザから anon クライアントで直接読んでいる（RLS で SELECT のみ許可）。`getAnonClient()` で使い回している（作るたびに GoTrueClient の警告が出るため）。**サーバー側の Prisma + Route Handler に切り替える（#43）**。`getAnonClient()` は Realtime の購読（#17）で引き続き使う
+- 予定の取得は、サーバー側の Prisma + Route Handler（`GET /api/events`）で取得する（#43 で切り替え済み）。`getAnonClient()` は Realtime の購読（#17）で引き続き使う
 - 予定の表示範囲は URL の searchParams と `history.replaceState` で同期する（サーバーの再描画は起きない）
 
 ## 方針メモ
