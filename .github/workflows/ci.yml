@@ -24,7 +24,8 @@ jobs:
           node-version: 24
           cache: yarn
 
-      # lockfile と package.json がずれていたら失敗させる
+      # lockfile と package.json がずれていたら失敗させる。
+      # postinstall で prisma generate が走る（DB への接続・環境変数は不要）
       - run: yarn install --frozen-lockfile
 
       - run: yarn lint

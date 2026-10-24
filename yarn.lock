@@ -580,15 +580,10 @@
   resolved "https://registry.yarnpkg.com/@oxc-project/types/-/types-0.155.0.tgz#a3525bff41bc0575839e95d2064635dd73dfef81"
   integrity sha512-SeE8JPwW1xs1tHeNycjUtUBdhorRa8o4jlvjwk49R7/Z291i+4DQa7JJIgOm/TaYQZx+QrPQbVJ/9c8dMIZN8Q==
 
-"@prisma/client-runtime-utils@^7.3.0":
-  version "7.10.1"
-  resolved "https://registry.yarnpkg.com/@prisma/client-runtime-utils/-/client-runtime-utils-7.10.1.tgz#af603fe5cbcd44e381772a97fedbb1ee1d363a58"
-  integrity sha512-AzoATVIgmO3lcZfM443+9SI7+cyLMW2+Psw4op8WQHpHvHCX//CKxv8fwhiL0yGWF8DjdQrFewxrZo5McBdB8g==
-
-"@prisma/client@6.3.1":
-  version "6.3.1"
-  resolved "https://registry.yarnpkg.com/@prisma/client/-/client-6.3.1.tgz#4e4b05b27f4541ea541a601c57a8ada10b526848"
-  integrity sha512-ARAJaPs+eBkemdky/XU3cvGRl+mIPHCN2lCXsl5Vlb0E2gV+R6IN7aCI8CisRGszEZondwIsW9Iz8EJkTdykyA==
+"@prisma/client@^6.19.3":
+  version "6.19.3"
+  resolved "https://registry.yarnpkg.com/@prisma/client/-/client-6.19.3.tgz#b04413143eeb0812a323451bbc1a22767cee11ef"
+  integrity sha512-mKq3jQFhjvko5LTJFHGilsuQs+W+T3Gm451NzuTDGQxwCzwXHYnIu2zGkRoW+Exq3Rob7yp2MfzSrdIiZVhrBg==
 
 "@prisma/config@6.19.3":
   version "6.19.3"
@@ -604,16 +599,6 @@
   version "6.19.3"
   resolved "https://registry.yarnpkg.com/@prisma/debug/-/debug-6.19.3.tgz#9a93165534246e46b1356aa14e6011a23c8434bc"
   integrity sha512-ljkJ+SgpXNktLG0Q/n4JGYCkKf0f8oYLyjImS2I8e2q2WCfdRRtWER062ZV/ixaNP2M2VKlWXVJiGzZaUgbKZw==
-
-"@prisma/debug@7.10.1":
-  version "7.10.1"
-  resolved "https://registry.yarnpkg.com/@prisma/debug/-/debug-7.10.1.tgz#6ef089971593d98668e762c5810ea335461773e8"
-  integrity sha512-eFCAkGZ13D/qPg48JBlG5IWi9cSBBOC7oG3abDPcAkYioDWlIjh0YJJLK2J7qo5S+xWWD8I6egAN/8KbCaiMCA==
-
-"@prisma/dmmf@7.10.1", "@prisma/dmmf@^7.3.0":
-  version "7.10.1"
-  resolved "https://registry.yarnpkg.com/@prisma/dmmf/-/dmmf-7.10.1.tgz#01e37ae74ed13afd9b0700b9ab3089299ff2e318"
-  integrity sha512-56mAUF8wlLAqe9jCVBJKwo5UgaAksctB4vGrIK34X6+8UOUU2gDNVz8I+CNra9BeqFrRiCZUWvQJJu88ukPsmA==
 
 "@prisma/engines-version@7.1.1-3.c2990dca591cba766e3b7ef5d9e8a84796e47ab7":
   version "7.1.1-3.c2990dca591cba766e3b7ef5d9e8a84796e47ab7"
@@ -638,20 +623,6 @@
     "@prisma/debug" "6.19.3"
     "@prisma/engines-version" "7.1.1-3.c2990dca591cba766e3b7ef5d9e8a84796e47ab7"
     "@prisma/get-platform" "6.19.3"
-
-"@prisma/generator-helper@^7.3.0":
-  version "7.10.1"
-  resolved "https://registry.yarnpkg.com/@prisma/generator-helper/-/generator-helper-7.10.1.tgz#38e8c11e51cc2aa391ff250ad550404e5cb7fcb5"
-  integrity sha512-JnejJ/ricWKO+yCrNEkHa0zLo7VyNRvlHtA6O5AmCPgAp8XUcoGdonssdOauNjTgXCUzQ1YOBWNryNM9y6Ivdg==
-  dependencies:
-    "@prisma/debug" "7.10.1"
-    "@prisma/dmmf" "7.10.1"
-    "@prisma/generator" "7.10.1"
-
-"@prisma/generator@7.10.1":
-  version "7.10.1"
-  resolved "https://registry.yarnpkg.com/@prisma/generator/-/generator-7.10.1.tgz#6c5d78a2f1b844c30cc69f76bea06eab2de1b81a"
-  integrity sha512-SGrXz4CmQgoxQVoT70wzhL5vD5XLEhMYT7keQQL2zMNFE0WYO9hQ2HJHKHAsMYI9LyordFRrjYj/W9EpN/YyQw==
 
 "@prisma/get-platform@6.19.3":
   version "6.19.3"
@@ -1484,11 +1455,6 @@ client-only@0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/client-only/-/client-only-0.0.1.tgz#38bba5d403c41ab150bff64a95c85013cf73bca1"
   integrity sha512-IV3Ou0jSMzZrd3pZ48nLkT9DA7Ag1pnPzaiQhpW7c3RbcqqzvzzVu+L8gfqMp/8IM2MQtSiqaCxrrcfu8I8rMA==
-
-code-block-writer@^13.0.3:
-  version "13.0.3"
-  resolved "https://registry.yarnpkg.com/code-block-writer/-/code-block-writer-13.0.3.tgz#90f8a84763a5012da7af61319dd638655ae90b5b"
-  integrity sha512-Oofo0pq3IKnsFtuHqSF7TqBfr71aeyZDVJ0HpmqB7FBM2qEigL0iPONSCZSO9pE9dZTAxANe5XHG9Uy0YMv8cg==
 
 color-convert@^2.0.1:
   version "2.0.1"
@@ -2848,11 +2814,6 @@ lodash.merge@^4.6.2:
   resolved "https://registry.yarnpkg.com/lodash.merge/-/lodash.merge-4.6.2.tgz#558aa53b43b661e1925a0afdfa36a9a1085fe57a"
   integrity sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==
 
-lodash@^4.17.23:
-  version "4.18.1"
-  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.18.1.tgz#ff2b66c1f6326d59513de2407bf881439812771c"
-  integrity sha512-dMInicTPVE8d1e5otfwmmjlxkZoUpiVLwyeTdUsi/Caj/gfzzblBcCE5sRHV/AsjuCmxWrte2TNGSYuCeCq+0Q==
-
 loose-envify@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/loose-envify/-/loose-envify-1.4.0.tgz#71ee51fa7be4caec1a63839f7e682d8132d30caf"
@@ -3248,7 +3209,7 @@ prettier@^3.9.10:
   resolved "https://registry.yarnpkg.com/prettier/-/prettier-3.9.10.tgz#ac378e432f1a7381518f2e080816bbaefa38d585"
   integrity sha512-skGHTH1Yb9QvaTC4hWnRTzEYtCpApF0UMBPz+t/0ZPzP8ihefo/btKd+QA7pUE0fEwA1SbS/NmhyEcstdXOIdA==
 
-prisma@^6.3.1:
+prisma@^6.19.3:
   version "6.19.3"
   resolved "https://registry.yarnpkg.com/prisma/-/prisma-6.19.3.tgz#48c80d6a7b74269f6f30e27c1f8781a83249410c"
   integrity sha512-++ZJ0ijLrDJF6hNB4t4uxg2br3fC4H9Yc9tcbjr2fcNFP3rh/SBNrAgjhsqBU4Ght8JPrVofG/ZkXfnSfnYsFg==
@@ -4093,24 +4054,7 @@ yocto-queue@^0.1.0:
   resolved "https://registry.yarnpkg.com/yocto-queue/-/yocto-queue-0.1.0.tgz#0294eb3dee05028d31ee1a5fa2c556a6aaf10a1b"
   integrity sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==
 
-zod-prisma-types@^3.2.4:
-  version "3.3.11"
-  resolved "https://registry.yarnpkg.com/zod-prisma-types/-/zod-prisma-types-3.3.11.tgz#ec95c4e198fed745bcbac2300976db41accfa1bc"
-  integrity sha512-fP00cL+MLPhG3GDNep3cro5iXWTaFUcOqWoGfNGFFmaIxHjKoViXGKpZGwFg8RdXZdng1i1/EIh/Pv5kGQeKNA==
-  dependencies:
-    "@prisma/client-runtime-utils" "^7.3.0"
-    "@prisma/dmmf" "^7.3.0"
-    "@prisma/generator-helper" "^7.3.0"
-    code-block-writer "^13.0.3"
-    lodash "^4.17.23"
-    zod "^4.3.6"
-
 zod@^3.24.2:
   version "3.25.76"
   resolved "https://registry.yarnpkg.com/zod/-/zod-3.25.76.tgz#26841c3f6fd22a6a2760e7ccb719179768471e34"
   integrity sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==
-
-zod@^4.3.6:
-  version "4.6.7"
-  resolved "https://registry.yarnpkg.com/zod/-/zod-4.6.7.tgz#e806cf64a7f4e37635ce9f2f52c04c3766f75e5b"
-  integrity sha512-g8W2D2kU6a8untc053fX1uVBKzM7yqAxW/3zwk83+6RyF2+SKOuV+c0wBDhUwzV1PaGapmZH+rmcUzPf+3CGwg==

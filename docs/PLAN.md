@@ -10,7 +10,7 @@ Issue 作成後、`#?` を番号に置き換える。進捗は `[ ]` → `[x]` �
 - [x] #6 `Event` モデルと初回マイグレーションを追加する（RLS: anon は SELECT のみ）
 - [x] #7 サーバー専用 Supabase クライアントを追加する（`src/utils/supabase/admin.ts`、`server-only`、`SUPABASE_SECRET_KEY`、`.env.sample` 追記。※`server-only` は新規依存のため事前確認）
 - ~~#27 不要になった依存パッケージを整理する（`@supabase/ssr`、`tsx`、`entities`。#3 で見送った分）~~ **実施せずに終了**
-- [ ] #30 Prisma Client を実行時に使えるようにする（`@prisma/client` を 6.19.3 にそろえ、`prisma generate` を直す。`zod-prisma-types` の整理。ビルド・CI で generate）
+- [x] #30 Prisma Client を実行時に使えるようにする（`@prisma/client` を 6.19.3 にそろえ、`prisma generate` を直す。`zod-prisma-types` を削除。`postinstall` と `vercel-build` で generate）
 
 ## Phase 2: 表示
 - [x] #8 日付ユーティリティを実装する（`src/lib/calendar/`: JST 変換、週・月の範囲計算。テスト先行）
@@ -94,6 +94,7 @@ DB・マイグレーション、`jst.ts`（JST の日付計算）、`schema.ts`�
 ## 方針メモ
 - 新規依存は追加前に確認する（Vitest、`react-calendar`、`server-only`、FullCalendar など）
 - 本番 DB に影響するコマンド（`prisma migrate deploy` など）は提示のみで実行しない
-  - `vercel-build` から `prisma generate` と `prisma migrate deploy` を外し、`next build` のみにした。マイグレーションは手動で提示されたコマンドを実行する。`prisma generate` は、Prisma を実行時にも使う方針に変わったため、#30 でビルド・CI に戻す（先に `@prisma/client`(6.3.1) と CLI(6.19.3) のバージョン差を直す）。`migrate deploy` は本番 DB に影響するため、これまでどおり提示のみ
+  - `vercel-build` は `prisma generate && next build`（#30 で戻した）。`migrate deploy` は本番 DB に影響するため、`vercel-build` に含めず、これまでどおり手動で提示されたコマンドを実行する
+  - `prisma generate` は `postinstall` でも実行する（`yarn install` だけで Prisma Client ができる。CI も同じ）。DB への接続や環境変数は不要。`@prisma/client` は CLI と同じ 6.19.x にそろえる（ずれると生成に失敗する）。`test/db/prisma-client.test.ts` が、生成されていないこと・バージョンのずれを検知する
 - CI は yarn で `install --frozen-lockfile` / lint / prettier:check / typecheck / build を実行する。`yarn test:coverage` もここで実行する（カバレッジは出力のみで、最低ラインでの失敗判定はしない）
 - Issue 作成時は `phase-N` ラベルを付ける
