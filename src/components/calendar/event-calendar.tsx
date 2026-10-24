@@ -1,7 +1,8 @@
 "use client";
 
-import FullCalendar from "@fullcalendar/react";
+import FullCalendar, { type CalendarRef } from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/react/daygrid";
+import interactionPlugin from "@fullcalendar/react/interaction";
 import jaLocale from "@fullcalendar/react/locales/ja";
 import classicThemePlugin from "@fullcalendar/react/themes/classic";
 import timeGridPlugin from "@fullcalendar/react/timegrid";
@@ -16,6 +17,9 @@ import {
   buildCalendarHref,
   type CalendarView,
 } from "@/lib/calendar/navigation";
+import { EventFormModal } from "@/components/calendar/event-form-modal";
+import { createEventAction } from "@/lib/events/actions";
+import { defaultFormValues, type EventFormValues } from "@/lib/events/form";
 import { fetchEventsFromApi } from "@/lib/events/client";
 import type { FullCalendarEvent } from "@/lib/events/fullcalendar";
 import "@fullcalendar/react/skeleton.css";
@@ -32,7 +36,12 @@ type EventCalendarProps = {
 };
 
 // 配列やオブジェクトをコンポーネントの中で書くと、再描画のたびに「変更された」と扱われるので外に置く
-const PLUGINS = [dayGridPlugin, timeGridPlugin, classicThemePlugin];
+const PLUGINS = [
+  dayGridPlugin,
+  timeGridPlugin,
+  interactionPlugin,
+  classicThemePlugin,
+];
 const HEADER_TOOLBAR = {
   left: "prev,next today",
   center: "title",
@@ -48,6 +57,11 @@ export function EventCalendar({
   loadEvents = fetchEventsFromApi,
 }: EventCalendarProps) {
   const [loadFailed, setLoadFailed] = useState(false);
+  // 作成モーダルの初期値。null のときは閉じている
+  const [createValues, setCreateValues] = useState<EventFormValues | null>(
+    null,
+  );
+  const calendarRef = useRef<CalendarRef>(null);
   // URL に書いている date。範囲の中を動いている間は維持し、範囲の外へ移動したら更新する
   const urlDate = useRef(date);
 
@@ -112,6 +126,19 @@ export function EventCalendar({
     [],
   );
 
+  // 空きセル（日付・時間枠）のクリックで作成モーダルを開く
+  const openCreateModal = useCallback(
+    (info: { date: Date; allDay: boolean }) =>
+      setCreateValues(defaultFormValues(info.date, info.allDay)),
+    [],
+  );
+  const closeCreateModal = useCallback(() => setCreateValues(null), []);
+  // 保存できたら閉じて、表示範囲の予定を取得し直す
+  const handleSaved = useCallback(() => {
+    setCreateValues(null);
+    calendarRef.current?.getApi().refetchEvents();
+  }, []);
+
   return (
     <div className="px-4">
       {loadFailed && (
@@ -120,6 +147,7 @@ export function EventCalendar({
         </p>
       )}
       <FullCalendar
+        ref={calendarRef}
         plugins={PLUGINS}
         locale={jaLocale}
         // DB は UTC で持ち、表示と日付の区切りは常に JST
@@ -141,7 +169,17 @@ export function EventCalendar({
         eventSourceSuccess={onEventsLoaded}
         eventSourceFailure={onEventsFailed}
         datesSet={syncUrl}
+        dateClick={openCreateModal}
       />
+      {createValues && (
+        <EventFormModal
+          title="予定を作成"
+          initialValues={createValues}
+          onSubmit={createEventAction}
+          onSaved={handleSaved}
+          onClose={closeCreateModal}
+        />
+      )}
     </div>
   );
 }

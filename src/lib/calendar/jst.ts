@@ -95,6 +95,15 @@ function jstMidnight(year: number, monthIndex: number, day: number): Date {
   return new Date(Date.UTC(year, monthIndex, day) - JST_OFFSET_MS);
 }
 
+// ある瞬間を JST の "YYYY-MM-DDTHH:mm"（フォームの日時の形式）にする。秒以下は切り捨てる
+export function formatJstDateTime(instant: Date): string {
+  const ymd = formatYmd(toJstYmd(instant));
+  const shifted = new Date(instant.getTime() + JST_OFFSET_MS);
+  const hh = String(shifted.getUTCHours()).padStart(2, "0");
+  const mm = String(shifted.getUTCMinutes()).padStart(2, "0");
+  return `${ymd}T${hh}:${mm}`;
+}
+
 // その日の JST 00:00 〜 翌日 00:00
 export function getJstDayRange({ year, month, day }: JstDate): DateRange {
   return {
