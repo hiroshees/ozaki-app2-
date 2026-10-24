@@ -14,6 +14,10 @@ type EventFormModalProps = {
   ) => Promise<SaveEventResult>;
   onSaved: () => void;
   onClose: () => void;
+  // 編集のときだけ渡す。削除ボタンを出し、押すと呼ばれる（確認ダイアログは呼び出し側）
+  onDelete?: () => void;
+  // 確認ダイアログが上に出ているときは、Escape をそちらに任せる
+  closeOnEscape?: boolean;
 };
 
 const INPUT_CLASS =
@@ -27,6 +31,8 @@ export function EventFormModal({
   onSubmit,
   onSaved,
   onClose,
+  onDelete,
+  closeOnEscape = true,
 }: EventFormModalProps) {
   const [values, setValues] = useState(initialValues);
   const [errors, setErrors] = useState<FieldErrors>({});
@@ -36,12 +42,13 @@ export function EventFormModal({
 
   // Escape で閉じる
   useEffect(() => {
+    if (!closeOnEscape) return;
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [onClose]);
+  }, [onClose, closeOnEscape]);
 
   const update = <K extends keyof EventFormValues>(
     key: K,
@@ -186,6 +193,16 @@ export function EventFormModal({
           </div>
 
           <div className="flex justify-end gap-2">
+            {onDelete && (
+              <button
+                type="button"
+                onClick={onDelete}
+                disabled={pending}
+                className="mr-auto rounded-lg border border-red-300 px-5 py-2.5 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50"
+              >
+                削除
+              </button>
+            )}
             <button
               type="button"
               onClick={onClose}
