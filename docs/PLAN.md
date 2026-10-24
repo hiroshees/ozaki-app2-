@@ -20,7 +20,7 @@ Issue 作成後、`#?` を番号に置き換える。進捗は `[ ]` → `[x]` �
 - ~~#12 予定の重なりレイアウト計算を実装する~~ **実施せずに終了**（FullCalendar が標準で行う）
 - ~~#13 週ビュー・日ビューを実装する~~ **実施せずに終了**（react-calendar に無い。FullCalendar が提供する）
 - [x] #39 FullCalendar を導入し、月ビューを置き換える（`@fullcalendar/react` v7 と `temporal-polyfill`。承認済み）
-- [ ] #40 FullCalendar で週ビュー・日ビューを追加する
+- [x] #40 FullCalendar で週ビュー・日ビューを追加する
 - [x] #43 予定の取得を Prisma + Route Handler に切り替える（`GET /api/events`。ブラウザから supabase-js・zod が不要になる。#30 が前提）
 
 ## Phase 3: 予定の CRUD
